@@ -1,10 +1,10 @@
 #include "shader.h"
-#include "spdlog/spdlog.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include "spdlog/spdlog.h"
 
-Shader::Shader(const char *vertexPath, const char *fragmentPath) {
+Shader::Shader(const char* vertexPath, const char* fragmentPath) {
   spdlog::debug("Initializing vertex shader {} and fragment shader {}",
                 vertexPath, fragmentPath);
   // 1. Retrieve vertex/fragment source code from filePath
@@ -32,13 +32,13 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath) {
   }
 
   catch (std::ifstream::failure e) {
-    spdlog::error("ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ");
+    spdlog::error("Shader files not successfully read.");
   }
 
   spdlog::debug("vertex shader {} and fragment shader {} read", vertexPath,
                 fragmentPath);
-  const char *vShaderCode = vertexCode.c_str();
-  const char *fShaderCode = fragmentCode.c_str();
+  const char* vShaderCode = vertexCode.c_str();
+  const char* fShaderCode = fragmentCode.c_str();
 
   // 2. Compile shaders
   unsigned int vertex, fragment;
@@ -73,17 +73,19 @@ Shader::Shader(const char *vertexPath, const char *fragmentPath) {
   glDeleteShader(fragment);
 }
 
-void Shader::use() { glUseProgram(ID); }
+void Shader::use() {
+  glUseProgram(ID);
+}
 
-void Shader::setBool(const std::string &name, bool value) const {
+void Shader::setBool(const std::string& name, bool value) const {
   glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
 }
 
-void Shader::setInt(const std::string &name, int value) const {
+void Shader::setInt(const std::string& name, int value) const {
   glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
 }
 
-void Shader::setFloat(const std::string &name, float value) const {
+void Shader::setFloat(const std::string& name, float value) const {
   glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
 }
 
@@ -94,14 +96,13 @@ void Shader::checkCompileErrors(unsigned int shader, std::string type) {
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success) {
       glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-      spdlog::error("ERROR:SHADER_COMPILIATION_ERROR of type {}. {}", type,
-                    infoLog);
+      spdlog::error("Shader compilation error of type {}. {}", type, infoLog);
     }
   } else {
     glGetProgramiv(shader, GL_LINK_STATUS, &success);
     if (!success) {
       glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-      spdlog::error("ERROR:SHADER_LINKING_ERROR of type {}. {}", type, infoLog);
+      spdlog::error("Shader linking error of type {}. {}", type, infoLog);
     }
   }
 }

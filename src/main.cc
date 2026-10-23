@@ -1,6 +1,3 @@
-#include "shader.h"
-#include "spdlog/spdlog.h"
-#include "stb/stb_image.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_keyboard.h>
@@ -9,16 +6,20 @@
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
 #include <glad/glad.h>
+#include <math.h>
+#include <stdio.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <math.h>
-#include <stdio.h>
+#include "camera_class.h"
+#include "shader.h"
+#include "spdlog/spdlog.h"
+#include "stb/stb_image.h"
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
-static SDL_Window *window = NULL;
-static SDL_Renderer *renderer = NULL;
+static SDL_Window* window = NULL;
+static SDL_Renderer* renderer = NULL;
 
 float vertices[] = {
     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
@@ -52,37 +53,42 @@ uint32_t vertexShader;
 uint32_t fragmentShader;
 uint32_t shaderProgram;
 
-const char *vertexShaderSource;
-const char *fragmentShaderSource;
+const char* vertexShaderSource;
+const char* fragmentShaderSource;
 
 int success;
 char infolog[512];
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
   // https://github.com/gabime/spdlog/wiki/Custom-formatting
   // spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
   spdlog::set_level(spdlog::level::debug);
   spdlog::info("Start of program");
   if (SDL_Init(SDL_INIT_VIDEO) == false) {
-    SDL_Log("SDL could ont initialize! SDL error: %s\n", SDL_GetError());
+    spdlog::critical("SDL could not initialize. SDL error: {}", SDL_GetError());
     return -1;
   };
   // Create a window
   if (!SDL_CreateWindowAndRenderer("SDL3 Tutorial", WINDOW_WIDTH, WINDOW_HEIGHT,
                                    (SDL_WINDOW_MINIMIZED), &window,
                                    &renderer)) {
-    SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
+    spdlog::critical("Couldn't create window/renderer: {}", SDL_GetError());
     return -1;
   }
+  spdlog::info("Initialized SDL window width {}px and window height {}px",
+               WINDOW_WIDTH, WINDOW_HEIGHT);
 
   // Set OpenGL attributes
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+  unsigned int sdl_version = 3;
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, sdl_version);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, sdl_version);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+  spdlog::info("Initialized SDL with version {}", sdl_version);
 
   // Context
   SDL_GLContext gl_context = SDL_GL_CreateContext(window);
   if (!gl_context) {
+    spdlog::critical("Could not create opengl context, shutting down program");
     SDL_DestroyWindow(window);
     SDL_Quit();
     return -1;
@@ -113,11 +119,11 @@ int main(int argc, char *argv[]) {
   //              GL_STATIC_DRAW);
 
   // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
   // texture attribute
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void *)(3 * sizeof(float)));
+                        (void*)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
   int width, height, nrChannels;
@@ -137,7 +143,7 @@ int main(int argc, char *argv[]) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // load texture data
-  unsigned char *data =
+  unsigned char* data =
       stbi_load("assets/container.jpg", &width, &height, &nrChannels, 0);
   stbi_set_flip_vertically_on_load(true);
   if (!data) {
@@ -190,21 +196,17 @@ int main(int argc, char *argv[]) {
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
 
   // camera
-  glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-  glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-  glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+  Camera* camera = new Camera(glm::vec3(0.0f, 0.0f, 4.0f));
+  glEnable(GL_DEPTH_TEST);
 
   bool running = true;
   SDL_Event event;
   spdlog::info("Main loop start");
-  glEnable(GL_DEPTH_TEST);
   float deltaTime = 0.0f;
   float lastFrame = 0.0f;
   bool firstMouse = true;
 
-  float yaw, pitch, roll;
   float lastX = 400, lastY = 300;
-  yaw = -90.0f;
 
   // Main loop
   while (running) {
@@ -236,38 +238,22 @@ int main(int argc, char *argv[]) {
         lastX = mouseEvent.x;
         lastY = mouseEvent.y;
 
-        yaw += xOffset;
-        pitch += yOffset;
-
-        if (pitch > 89.0f) {
-          pitch = 89.0f;
-        };
-        if (pitch < -89.0f) {
-          pitch = -89.0f;
-        }
-
-        glm::vec3 direction;
-        direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        direction.y = sin(glm::radians(pitch));
-        direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        cameraFront = glm::normalize(direction);
+        camera->ProcessMouseMovement(xOffset, yOffset);
       }
     }
 
     // keyboard input
-    const bool *state = SDL_GetKeyboardState(NULL);
+    const bool* state = SDL_GetKeyboardState(NULL);
     float cameraSpeed = static_cast<float>(2.5f * deltaTime);
 
     if (state[SDL_SCANCODE_W]) {
-      cameraPos += cameraSpeed * cameraFront;
+      camera->ProcessKeyboard(FORWARD, deltaTime);
     } else if (state[SDL_SCANCODE_A]) {
-      cameraPos -=
-          glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+      camera->ProcessKeyboard(LEFT, deltaTime);
     } else if (state[SDL_SCANCODE_S]) {
-      cameraPos -= cameraSpeed * cameraFront;
+      camera->ProcessKeyboard(BACKWARD, deltaTime);
     } else if (state[SDL_SCANCODE_D]) {
-      cameraPos +=
-          glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+      camera->ProcessKeyboard(RIGHT, deltaTime);
     }
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -296,7 +282,7 @@ int main(int argc, char *argv[]) {
     float camX = static_cast<float>(sin(deltaTime) * radius);
     float camZ = static_cast<float>(cos(deltaTime) * radius);
     view = glm::mat4(1.0f);
-    view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    view = camera->GetViewMatrix();
 
     unsigned int modelloc = glGetUniformLocation(myShader.ID, "model");
     unsigned int viewloc = glGetUniformLocation(myShader.ID, "view");

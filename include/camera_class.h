@@ -14,6 +14,7 @@ const float SPEED = 2.5f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
+// A class representing a scene camera.
 class Camera {
  public:
   // Camera Attributes

@@ -9,7 +9,7 @@ if [ $# -eq 0 ]; then
     cp build/debug/${target} .
     echo 'Copied.'
 
-    ln -sf build/debug/compile_commands.json compile_commands.json
+    cp build/debug/compile_commands.json compile_commands.json
     echo 'compile_commands.json created'
 else
     case $1 in

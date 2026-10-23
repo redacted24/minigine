@@ -17,8 +17,9 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
   WorldUp = up;
   Pitch = pitch;
   updateCameraVectors();
-  spdlog::debug("Initialized camera with position x:{}, y:{}, z:{}", position.x,
-                position.y, position.z);
+  spdlog::debug(
+      "Initialized camera through vectors with position ({}, {}, {}). ",
+      position.x, position.y, position.z);
 }
 
 Camera::Camera(float posX, float posY, float posZ, float upX, float upY,
@@ -32,6 +33,9 @@ Camera::Camera(float posX, float posY, float posZ, float upX, float upY,
   Yaw = yaw;
   Pitch = pitch;
   updateCameraVectors();
+  spdlog::debug(
+      "Initialized camera through floats with position x:{}, y:{}, z:{}", posX,
+      posY, posZ);
 }
 
 void Camera::updateCameraVectors() {
