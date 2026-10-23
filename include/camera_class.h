@@ -14,9 +14,13 @@ const float SPEED = 2.5f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
-// A class representing a scene camera.
+/**
+ * @class Camera
+ * @brief Class for camera.
+ *
+ */
 class Camera {
- public:
+public:
   // Camera Attributes
   glm::vec3 Position;
   glm::vec3 Front;
@@ -31,31 +35,68 @@ class Camera {
   float MouseSensitivity;
   float Zoom;
 
-  // Constructor with Vectors
+  /**
+   * @brief Constructor for Camera with vector values.
+   *
+   * @param position specifies the position of the camera
+   * @param up specifies what the camera considers as up.
+   * @param yaw
+   * @param pitch
+   */
   Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
          glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW,
          float pitch = PITCH);
 
-  // Constructor with scalar values
+  /**
+   * @brief Constructor for Camera with scalar values
+   *
+   * @param poX
+   * @param posY
+   * @param posZ
+   * @param upX
+   * @param upY
+   * @param upZ
+   * @param yaw
+   * @param pitch
+   */
   Camera(float poX, float posY, float posZ, float upX, float upY, float upZ,
          float yaw, float pitch);
 
-  // Returns view matrix calculated with Euler Angles and LookAt Matrix
+  /**
+   * @brief Returns view matrix calculated with Euler Angles and LookAt Matrix
+   */
   glm::mat4 GetViewMatrix();
 
-  // Process keyboard inputs
+  /**
+   * @brief Process keyboard inputs
+   *
+   * @param direction
+   * @param deltaTime
+   */
   void ProcessKeyboard(CameraMovement direction, float deltaTime);
 
-  // Process mouse inputs
+  /**
+   * @brief Process mouse inputs
+   *
+   * @param xoffset
+   * @param yoffset
+   * @param constrainPitch
+   */
   void ProcessMouseMovement(float xoffset, float yoffset,
                             GLboolean constrainPitch = true);
 
-  // Process mouse scrolling
+  /**
+   * @brief Process mouse scroll action.
+   *
+   * @param yoffset
+   */
   void ProcessMouseScroll(float yoffset);
 
- private:
-  // Calculate front vector from Camera's updated Euler Angles
+private:
+  /**
+   * @brief Calculate front vector from Camera's updated Euler Angles
+   */
   void updateCameraVectors();
 };
 
-#endif  // PERLIN_INCLUDE_CAMERA_CLASS_H
+#endif // PERLIN_INCLUDE_CAMERA_CLASS_H

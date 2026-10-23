@@ -1,18 +1,16 @@
 #include <SDL3/SDL.h>
 #include <glad/glad.h>
-#include <spdlog/spdlog.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <spdlog/spdlog.h>
 
 #include "camera_class.h"
 #include "stb/stb_image.h"
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
-    : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
-      MovementSpeed(SPEED),
-      MouseSensitivity(SENSITIVITY),
-      Zoom(ZOOM) {
+    : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED),
+      MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
   Position = position;
   WorldUp = up;
   Pitch = pitch;
@@ -24,10 +22,8 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
 
 Camera::Camera(float posX, float posY, float posZ, float upX, float upY,
                float upZ, float yaw, float pitch)
-    : Front(glm::vec3(0.0f, 0.0f, -1.0f)),
-      MovementSpeed(SPEED),
-      MouseSensitivity(SENSITIVITY),
-      Zoom(ZOOM) {
+    : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED),
+      MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
   Position = glm::vec3(posX, posY, posZ);
   WorldUp = glm::vec3(upX, upY, upZ);
   Yaw = yaw;

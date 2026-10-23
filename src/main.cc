@@ -1,3 +1,7 @@
+#include "camera_class.h"
+#include "shader.h"
+#include "spdlog/spdlog.h"
+#include "stb/stb_image.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_keyboard.h>
@@ -6,20 +10,16 @@
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
 #include <glad/glad.h>
-#include <math.h>
-#include <stdio.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "camera_class.h"
-#include "shader.h"
-#include "spdlog/spdlog.h"
-#include "stb/stb_image.h"
+#include <math.h>
+#include <stdio.h>
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
-static SDL_Window* window = NULL;
-static SDL_Renderer* renderer = NULL;
+static SDL_Window *window = NULL;
+static SDL_Renderer *renderer = NULL;
 
 float vertices[] = {
     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
@@ -53,13 +53,13 @@ uint32_t vertexShader;
 uint32_t fragmentShader;
 uint32_t shaderProgram;
 
-const char* vertexShaderSource;
-const char* fragmentShaderSource;
+const char *vertexShaderSource;
+const char *fragmentShaderSource;
 
 int success;
 char infolog[512];
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
   // https://github.com/gabime/spdlog/wiki/Custom-formatting
   // spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
   spdlog::set_level(spdlog::level::debug);
@@ -119,11 +119,11 @@ int main(int argc, char* argv[]) {
   //              GL_STATIC_DRAW);
 
   // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
   // texture attribute
   glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void*)(3 * sizeof(float)));
+                        (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
   int width, height, nrChannels;
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   // load texture data
-  unsigned char* data =
+  unsigned char *data =
       stbi_load("assets/container.jpg", &width, &height, &nrChannels, 0);
   stbi_set_flip_vertically_on_load(true);
   if (!data) {
@@ -196,7 +196,7 @@ int main(int argc, char* argv[]) {
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
 
   // camera
-  Camera* camera = new Camera(glm::vec3(0.0f, 0.0f, 4.0f));
+  Camera *camera = new Camera(glm::vec3(0.0f, 0.0f, 4.0f));
   glEnable(GL_DEPTH_TEST);
 
   bool running = true;
@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
     }
 
     // keyboard input
-    const bool* state = SDL_GetKeyboardState(NULL);
+    const bool *state = SDL_GetKeyboardState(NULL);
     float cameraSpeed = static_cast<float>(2.5f * deltaTime);
 
     if (state[SDL_SCANCODE_W]) {
@@ -314,6 +314,7 @@ int main(int argc, char* argv[]) {
       glUniformMatrix4fv(modelloc, 1, GL_FALSE, glm::value_ptr(model));
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
+
     // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     // not really necessary unless really specified
