@@ -1,0 +1,59 @@
+cmake_minimum_required(VERSION 3.23)
+
+project(perlin)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_DEBUG_POSTFIX "_debug")
+
+find_package(SDL3 REQUIRED)
+find_package(spdlog REQUIRED)
+find_package(glm REQUIRED)
+
+add_executable(main.out)
+
+target_sources(main.out
+    PRIVATE
+        src/main.cc
+        src/shader.cc
+        src/stb.cc
+        src/camera_class.cc
+
+    PUBLIC
+        FILE_SET HEADERS
+        BASE_DIRS
+            include
+        FILES
+            include/shader.h
+            include/main.h
+            include/camera_class.h
+)
+
+add_library(glad)
+
+target_sources(glad
+    PRIVATE
+        src/glad.c
+    PUBLIC
+        FILE_SET HEADERS
+        BASE_DIRS
+            include
+        FILES
+            include/glad/glad.h
+            include/KHR/khrplatform.h
+)
+
+target_link_libraries(main.out
+    PRIVATE
+        GL
+        X11
+        pthread
+        Xrandr
+        Xi
+        dl
+        SDL3
+        spdlog::spdlog
+        glad
+)
+
