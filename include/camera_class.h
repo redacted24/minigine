@@ -20,6 +20,7 @@ class Camera {
   glm::vec3 Position;
   glm::vec3 Front;
   glm::vec3 Right;
+  glm::vec3 Up;
   glm::vec3 WorldUp;
   // Euler Angles
   float Yaw;
@@ -30,7 +31,9 @@ class Camera {
   float Zoom;
 
   // Constructor with Vectors
-  Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch);
+  Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
+         glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW,
+         float pitch = PITCH);
 
   // Constructor with scalar values
   Camera(float poX, float posY, float posZ, float upX, float upY, float upZ,
@@ -44,7 +47,7 @@ class Camera {
 
   // Process mouse inputs
   void ProcessMouseMovement(float xoffset, float yoffset,
-                            GLboolean constrainPitch);
+                            GLboolean constrainPitch = true);
 
   // Process mouse scrolling
   void ProcessMouseScroll(float yoffset);
