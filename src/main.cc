@@ -277,9 +277,6 @@ int main(int argc, char *argv[]) {
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
-    // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    // Swap buffer 1 with 2. (present)
     SDL_GL_SwapWindow(window);
   }
   glDeleteVertexArrays(1, &VAO);

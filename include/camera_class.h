@@ -14,53 +14,24 @@ const float SPEED = 2.5f;
 const float SENSITIVITY = 0.1f;
 const float ZOOM = 45.0f;
 
-/**
- * @class Camera
- * @brief Class for camera.
- *
- */
 class Camera {
 public:
-  // Camera Attributes
   glm::vec3 Position;
   glm::vec3 Front;
   glm::vec3 Right;
   glm::vec3 Up;
   glm::vec3 WorldUp;
 
-  // Euler Angles
   float Yaw;
   float Pitch;
 
-  // Camera options
   float MovementSpeed;
   float MouseSensitivity;
   float Zoom;
 
-  /**
-   * @brief Constructor for Camera with vector values.
-   *
-   * @param position specifies the position of the camera
-   * @param up specifies what the camera considers as up.
-   * @param yaw
-   * @param pitch
-   */
   Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
          glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW,
          float pitch = PITCH);
-
-  /**
-   * @brief Constructor for Camera with scalar values
-   *
-   * @param poX
-   * @param posY
-   * @param posZ
-   * @param upX
-   * @param upY
-   * @param upZ
-   * @param yaw
-   * @param pitch
-   */
   Camera(float poX, float posY, float posZ, float upX, float upY, float upZ,
          float yaw, float pitch);
 
@@ -72,8 +43,9 @@ public:
   /**
    * @brief Process keyboard inputs
    *
-   * @param direction
-   * @param deltaTime
+   * @param direction An element from the CameraMovement enum, indicating the
+   * direction of movement
+   * @param deltaTime time elapsed since last processed frame
    */
   void ProcessKeyboard(CameraMovement direction, float deltaTime);
 
@@ -90,7 +62,7 @@ public:
   /**
    * @brief Process mouse scroll action.
    *
-   * @param yoffset
+   * @param yoffset Y position offset since last mouse position
    */
   void ProcessMouseScroll(float yoffset);
 
