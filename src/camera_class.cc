@@ -77,7 +77,6 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset,
       Pitch = 89.0f;
     if (Pitch < -89.0f)
       Pitch = -89.0f;
-    spdlog::debug("Pitch: {}", Pitch);
   }
 
   // update Front, Right and Up Vectors using the updated Euler angles

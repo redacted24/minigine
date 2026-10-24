@@ -226,7 +226,6 @@ int main(int argc, char *argv[]) {
         glViewport(0, 0, pixel_width, pixel_height);
       } else if (e.type == SDL_EVENT_MOUSE_MOTION) {
         mouseEvent = e.motion;
-        // camera
         camera->ProcessMouseMovement(mouseEvent.xrel, -mouseEvent.yrel);
       }
     }
@@ -262,43 +261,23 @@ int main(int argc, char *argv[]) {
     glm::mat4 projection = glm::perspective(
         glm::radians(45.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f,
         100.0f);
-    unsigned int projectionloc =
-        glGetUniformLocation(myShader.ID, "projection");
-    glUniformMatrix4fv(projectionloc, 1, GL_FALSE, glm::value_ptr(projection));
+    myShader.setMat4("projection", projection);
 
     glm::mat4 view = camera->GetViewMatrix();
-    unsigned int viewloc = glGetUniformLocation(myShader.ID, "view");
-    glUniformMatrix4fv(viewloc, 1, GL_FALSE, glm::value_ptr(view));
-
-    // rotation
-    // glm::mat4 trans = glm::mat4(1.0f);
-    // float scale = static_cast<float>(sin(SDL_GetTicks() / 1000.0f));
-    // trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-    // trans = glm::scale(trans, glm::vec3(scale, scale, scale));
-    // trans = glm::rotate(trans, (float)SDL_GetTicks() / 1000.0f,
-    //                     glm::vec3(0.0f, 0.0f, 1.0f));
-    // unsigned int transformLoc = glGetUniformLocation(myShader.ID,
-    // "transform"); glUniformMatrix4fv(transformLoc, 1, GL_FALSE,
-    // glm::value_ptr(trans));
+    myShader.setMat4("view", view);
 
     glBindVertexArray(VAO);
-
-    glm::mat4 model = glm::mat4(1.0f);
-    unsigned int modelloc = glGetUniformLocation(myShader.ID, "model");
 
     for (unsigned int i = 0; i < 10; i++) {
       glm::mat4 model = glm::mat4(1.0f);
       model = glm::translate(model, cubePositions[i]);
       float angle = 20.0f * i;
       model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
-      glUniformMatrix4fv(modelloc, 1, GL_FALSE, glm::value_ptr(model));
+      myShader.setMat4("model", model);
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
     // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-    // not really necessary unless really specified
-    // glBindVertexArray(0);
 
     // Swap buffer 1 with 2. (present)
     SDL_GL_SwapWindow(window);
