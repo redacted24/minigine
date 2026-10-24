@@ -27,10 +27,12 @@ public:
   glm::vec3 Right;
   glm::vec3 Up;
   glm::vec3 WorldUp;
+
   // Euler Angles
   float Yaw;
   float Pitch;
-  // Camera Options
+
+  // Camera options
   float MovementSpeed;
   float MouseSensitivity;
   float Zoom;
@@ -76,11 +78,11 @@ public:
   void ProcessKeyboard(CameraMovement direction, float deltaTime);
 
   /**
-   * @brief Process mouse inputs
+   * @brief Process mouse inputs and change yaw and pitch based on input.
    *
-   * @param xoffset
-   * @param yoffset
-   * @param constrainPitch
+   * @param xoffset the amount moved in x, relative to the last mouse position
+   * @param yoffset the amount moved in y, relative to the last mouse position
+   * @param constrainPitch whether to lock the pitch to feet and ceiling.
    */
   void ProcessMouseMovement(float xoffset, float yoffset,
                             GLboolean constrainPitch = true);

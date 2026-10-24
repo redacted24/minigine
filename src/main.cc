@@ -227,24 +227,12 @@ int main(int argc, char *argv[]) {
       } else if (e.type == SDL_EVENT_MOUSE_MOTION) {
         mouseEvent = e.motion;
         // camera
-        const float sensitivity = 0.1f;
-        if (firstMouse) {
-          lastX = mouseEvent.x;
-          lastY = mouseEvent.y;
-          firstMouse = false;
-        }
-        float xOffset = (mouseEvent.x - lastX) * sensitivity;
-        float yOffset = (lastY - mouseEvent.y) * sensitivity;
-        lastX = mouseEvent.x;
-        lastY = mouseEvent.y;
-
-        camera->ProcessMouseMovement(xOffset, yOffset);
+        camera->ProcessMouseMovement(mouseEvent.xrel, -mouseEvent.yrel);
       }
     }
 
     // keyboard input
     const bool *state = SDL_GetKeyboardState(NULL);
-    float cameraSpeed = static_cast<float>(2.5f * deltaTime);
 
     if (state[SDL_SCANCODE_W]) {
       camera->ProcessKeyboard(FORWARD, deltaTime);
@@ -256,6 +244,7 @@ int main(int argc, char *argv[]) {
       camera->ProcessKeyboard(RIGHT, deltaTime);
     }
 
+    // render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -265,33 +254,21 @@ int main(int argc, char *argv[]) {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture2);
 
+    // activate shader
     myShader.use();
 
     SDL_SetWindowRelativeMouseMode(window, true);
 
-    glm::mat4 model = glm::mat4(1.0f);
-    glm::mat4 view = glm::mat4(1.0f);
-    glm::mat4 projection = glm::mat4(1.0f);
-
-    model = glm::rotate(model, deltaTime, glm::vec3(0.5f, 1.0f, 0.0f));
-    projection = glm::perspective(glm::radians(45.0f),
-                                  (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT,
-                                  0.1f, 100.0f);
-
-    const float radius = 10.0f;
-    float camX = static_cast<float>(sin(deltaTime) * radius);
-    float camZ = static_cast<float>(cos(deltaTime) * radius);
-    view = glm::mat4(1.0f);
-    view = camera->GetViewMatrix();
-
-    unsigned int modelloc = glGetUniformLocation(myShader.ID, "model");
-    unsigned int viewloc = glGetUniformLocation(myShader.ID, "view");
+    glm::mat4 projection = glm::perspective(
+        glm::radians(45.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f,
+        100.0f);
     unsigned int projectionloc =
         glGetUniformLocation(myShader.ID, "projection");
-
-    glUniformMatrix4fv(modelloc, 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(viewloc, 1, GL_FALSE, glm::value_ptr(view));
     glUniformMatrix4fv(projectionloc, 1, GL_FALSE, glm::value_ptr(projection));
+
+    glm::mat4 view = camera->GetViewMatrix();
+    unsigned int viewloc = glGetUniformLocation(myShader.ID, "view");
+    glUniformMatrix4fv(viewloc, 1, GL_FALSE, glm::value_ptr(view));
 
     // rotation
     // glm::mat4 trans = glm::mat4(1.0f);
@@ -305,6 +282,9 @@ int main(int argc, char *argv[]) {
     // glm::value_ptr(trans));
 
     glBindVertexArray(VAO);
+
+    glm::mat4 model = glm::mat4(1.0f);
+    unsigned int modelloc = glGetUniformLocation(myShader.ID, "model");
 
     for (unsigned int i = 0; i < 10; i++) {
       glm::mat4 model = glm::mat4(1.0f);

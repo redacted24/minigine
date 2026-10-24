@@ -13,6 +13,7 @@ Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
       MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
   Position = position;
   WorldUp = up;
+  Yaw = yaw;
   Pitch = pitch;
   updateCameraVectors();
   spdlog::debug(
@@ -76,6 +77,7 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset,
       Pitch = 89.0f;
     if (Pitch < -89.0f)
       Pitch = -89.0f;
+    spdlog::debug("Pitch: {}", Pitch);
   }
 
   // update Front, Right and Up Vectors using the updated Euler angles
