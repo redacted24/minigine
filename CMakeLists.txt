@@ -36,7 +36,7 @@ add_library(glad)
 
 target_sources(glad
     PRIVATE
-        src/glad.c
+        thirdparty/glad/glad.c
     PUBLIC
         FILE_SET HEADERS
         BASE_DIRS
