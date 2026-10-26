@@ -1,5 +1,5 @@
-#ifndef INCLUDE_SHADER_H
-#define INCLUDE_SHADER_H
+#ifndef SHADER_H
+#define SHADER_H
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -35,4 +35,4 @@ private:
   void checkCompileErrors(unsigned int shader, std::string type);
 };
 
-#endif // INCLUDE_SHADER_H
+#endif // SHADER_H

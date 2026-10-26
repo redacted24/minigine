@@ -18,16 +18,18 @@ target_sources(main.out
         src/main.cc
         src/shader.cc
         src/stb.cc
-        src/camera_class.cc
+        src/camera.cc
+        src/node.cc
 
     PUBLIC
         FILE_SET HEADERS
         BASE_DIRS
-            include
+            src
         FILES
-            include/shader.h
-            include/main.h
-            include/camera_class.h
+            src/shader.h
+            src/main.h
+            src/camera.h
+            src/node.h
 )
 
 add_library(glad)

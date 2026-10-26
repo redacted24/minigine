@@ -1,5 +1,5 @@
-#ifndef PERLIN_INCLUDE_CAMERA_CLASS_H
-#define PERLIN_INCLUDE_CAMERA_CLASS_H
+#ifndef CAMERA_H
+#define CAMERA_H
 
 #include <glad/glad.h>
 
@@ -73,4 +73,4 @@ private:
   void updateCameraVectors();
 };
 
-#endif // PERLIN_INCLUDE_CAMERA_CLASS_H
+#endif // CAMERA_CLASS_H

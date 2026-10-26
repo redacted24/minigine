@@ -5,7 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <spdlog/spdlog.h>
 
-#include "camera_class.h"
+#include "camera.h"
 #include "stb/stb_image.h"
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)

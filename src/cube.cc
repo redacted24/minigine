@@ -1,0 +1,43 @@
+#include "cube.h"
+#include "stb/stb_image.h"
+#include <glm/glm.hpp>
+#include <spdlog/spdlog.h>
+
+Cube::Cube() : TexturePath("") {
+  spdlog::warn("Cube does not have a texture path.");
+}
+
+Cube::Cube(std::string name, std::string texturePath) {
+  Name = name;
+  TexturePath = texturePath;
+};
+
+int Cube::load_texture_data(std::string texturePath, int textureWidth,
+                            int textureHeight, int nrChannels) {
+  if (TexturePath == "") {
+    spdlog::warn("No texture data for Cube {}", Name);
+    return -1;
+  }
+
+  TextureData = stbi_load("assets/container.jpg", &textureWidth, &textureHeight,
+                          &nrChannels, 0);
+
+  if (!TextureData) {
+    spdlog::error("Failed to lo texture {}", texturePath);
+  } else {
+    spdlog::debug("Loaded texture {} for node {}", texturePath, Name);
+  }
+  return 0;
+}
+
+/**
+ * @brief Function that checks the node integrity.
+ *
+ * @return 0 on success, nonzero if fail.
+ */
+int Cube::invariant() {
+  if (Name == "") {
+    spdlog::warn("Node has no name.");
+  }
+  return 0;
+}
