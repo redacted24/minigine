@@ -40,10 +40,10 @@ target_sources(glad
     PUBLIC
         FILE_SET HEADERS
         BASE_DIRS
-            include
+            thirdparty
         FILES
-            include/glad/glad.h
-            include/KHR/khrplatform.h
+            thirdparty/glad/glad.h
+            thirdparty/KHR/khrplatform.h
 )
 
 target_link_libraries(main.out
