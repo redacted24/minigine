@@ -1,6 +1,7 @@
 #include "main.h"
 #include "camera.h"
 #include "cube.h"
+#include "perlin_noise.h"
 #include "rendering_engine.h"
 #include "shader.h"
 #include "spdlog/spdlog.h"
@@ -140,25 +141,42 @@ int main(int argc, char *argv[]) {
   myShader.use();
 
   glUniform1i(glGetUniformLocation(myShader.ID, "texture1"), 0);
-
-  glm::vec3 cubePositions[] = {
-      glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),
-      glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(2.0f, 1.0f, 0.0f),
-      glm::vec3(3.0f, 1.0f, 0.0f), glm::vec3(4.0f, 1.0f, 0.0f),
-  };
-
-  // camera
-  Camera *camera = new Camera(glm::vec3(0.0f, 0.0f, 4.0f));
   glEnable(GL_DEPTH_TEST);
 
   bool running = true;
   SDL_Event event;
   spdlog::info("Main loop start");
+
+  // variables for deltaTime calculation and mouse position
   float deltaTime = 0.0f;
   float lastFrame = 0.0f;
   bool firstMouse = true;
-
   float lastX = 400, lastY = 300;
+
+  // * -------------------------------------------------- *
+  //
+  //
+  //
+  // Start
+  //
+  //
+  //
+  // * -------------------------------------------------- *
+
+  PerlinNoise *perlin = new PerlinNoise(); // initialize perlin noise class
+
+  Camera *camera = new Camera(glm::vec3(0.0f, 5.0f, 10.0f));
+
+  // init the board or zone to render. let's say 10x10
+  int rows = 10;
+  int cols = 10;
+
+  std::vector<glm::vec3> cubePositions;
+  for (float i = 0; i < rows; i++) {
+    for (float j = 0; j < cols; j++) {
+      cubePositions.push_back(glm::vec3(i, 0.0f, j));
+    }
+  }
 
   // Main loop
   while (running) {
@@ -185,7 +203,7 @@ int main(int argc, char *argv[]) {
     // keyboard input
     const bool *state = SDL_GetKeyboardState(NULL);
 
-    // TODO: Change direction input to allow multidirectional movement
+    // PERF: Change direction input to allow multidirectional movement
     camera->ProcessKeyboard(state, deltaTime);
 
     // render
@@ -211,7 +229,7 @@ int main(int argc, char *argv[]) {
 
     glBindVertexArray(VAO);
 
-    for (unsigned int i = 0; i < 6; i++) {
+    for (unsigned int i = 0; i < cubePositions.size(); i++) {
       glm::mat4 model = glm::mat4(1.0f);
       model = glm::translate(model, cubePositions[i]);
       float angle = 20.0f * i;

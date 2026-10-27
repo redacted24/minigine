@@ -22,6 +22,7 @@ target_sources(main.out
         src/node.cc
         src/rendering_engine.cc
         src/cube.cc
+        src/perlin_noise.cc
 
     PUBLIC
         FILE_SET HEADERS
@@ -34,6 +35,7 @@ target_sources(main.out
             src/node.h
             src/rendering_engine.h
             src/cube.h
+            src/perlin_noise.h
 )
 
 add_library(glad)
