@@ -2,11 +2,10 @@
 #define CAMERA_H
 
 #include <glad/glad.h>
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-enum CameraMovement { FORWARD, BACKWARD, LEFT, RIGHT };
+enum CameraMovement { FORWARD, BACKWARD, LEFT, RIGHT, DOWN, UP };
 
 const float YAW = -90.0f;
 const float PITCH = 0.0f;

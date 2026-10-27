@@ -10,17 +10,17 @@ Cube::Cube() : TexturePath("") {
 Cube::Cube(std::string name, std::string texturePath) {
   Name = name;
   TexturePath = texturePath;
+  load_texture_data(TexturePath);
 };
 
-int Cube::load_texture_data(std::string texturePath, int textureWidth,
-                            int textureHeight, int nrChannels) {
+int Cube::load_texture_data(std::string texturePath) {
   if (TexturePath == "") {
     spdlog::warn("No texture data for Cube {}", Name);
     return -1;
   }
 
-  TextureData = stbi_load("assets/container.jpg", &textureWidth, &textureHeight,
-                          &nrChannels, 0);
+  TextureData = stbi_load("assets/container.jpg", &TextureWidth, &TextureHeight,
+                          &NrChannels, 0);
 
   if (!TextureData) {
     spdlog::error("Failed to lo texture {}", texturePath);

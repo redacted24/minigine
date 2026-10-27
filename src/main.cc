@@ -1,13 +1,17 @@
 #include "main.h"
 #include "camera.h"
+#include "cube.h"
+#include "rendering_engine.h"
 #include "shader.h"
 #include "spdlog/spdlog.h"
 #include "stb/stb_image.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
+#include <SDL3/SDL_init.h>
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
 #include <glad/glad.h>
@@ -127,72 +131,20 @@ int main(int argc, char *argv[]) {
   int width, height, nrChannels;
 
   // TEXTURE
-  unsigned int texture1, texture2;
+  unsigned int texture1;
   // -------------------------
   // texture 1
-  glGenTextures(1, &texture1);
-  glBindTexture(GL_TEXTURE_2D, texture1);
-  // set texture wrapping params
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-
-  // texture filtering
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  // load texture data
-  unsigned char *data =
-      stbi_load("assets/container.jpg", &width, &height, &nrChannels, 0);
-  stbi_set_flip_vertically_on_load(true);
-  if (!data) {
-    spdlog::error("Failed to load texture");
-  } else {
-    spdlog::debug("retrieved texture data");
-    // texture mipmaps
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-                 GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  }
-  stbi_image_free(data);
-
-  // -------------------------
-  // texture 2
-  glGenTextures(1, &texture2);
-  glBindTexture(GL_TEXTURE_2D, texture2);
-  // set texture wrapping params
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-  // texture filtering
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  data = stbi_load("assets/awesomeface.png", &width, &height, &nrChannels, 0);
-
-  if (!data) {
-    spdlog::error("Failed to load texture");
-  } else {
-    spdlog::debug("retrieved texture data");
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-  }
-  stbi_image_free(data);
+  Cube *cube = new Cube("Container cube", "assets/container.jpg");
+  RenderingEngine::prepare_cube_for_render(cube);
 
   myShader.use();
-  // initialize transform matrix
-  // unsigned int transformLoc = glGetUniformLocation(myShader.ID, "transform");
-  // glUniformMatrix4fv(transformLoc, 1, GL_FALSE,
-  //                    glm::value_ptr(glm::mat4(1.0f)));
 
   glUniform1i(glGetUniformLocation(myShader.ID, "texture1"), 0);
-  glUniform1i(glGetUniformLocation(myShader.ID, "texture2"), 1);
 
   glm::vec3 cubePositions[] = {
-      glm::vec3(0.0f, 0.0f, 0.0f),
-      glm::vec3(0.0f, 1.0f, 0.0f),
-      // glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
-      // glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
-      // glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
-      // glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)
+      glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),
+      glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(2.0f, 1.0f, 0.0f),
+      glm::vec3(3.0f, 1.0f, 0.0f), glm::vec3(4.0f, 1.0f, 0.0f),
   };
 
   // camera
@@ -233,6 +185,7 @@ int main(int argc, char *argv[]) {
     // keyboard input
     const bool *state = SDL_GetKeyboardState(NULL);
 
+    // TODO: Change direction input to allow multidirectional movement
     if (state[SDL_SCANCODE_W]) {
       camera->ProcessKeyboard(FORWARD, deltaTime);
     } else if (state[SDL_SCANCODE_A]) {
@@ -241,6 +194,14 @@ int main(int argc, char *argv[]) {
       camera->ProcessKeyboard(BACKWARD, deltaTime);
     } else if (state[SDL_SCANCODE_D]) {
       camera->ProcessKeyboard(RIGHT, deltaTime);
+    } else if (state[SDL_SCANCODE_LSHIFT]) {
+      camera->ProcessKeyboard(DOWN, deltaTime);
+    } else if (state[SDL_SCANCODE_SPACE]) {
+      camera->ProcessKeyboard(UP, deltaTime);
+    } else if (state[SDL_SCANCODE_ESCAPE]) {
+      delete cube;
+      spdlog::info("Escape command received, closing app");
+      break;
     }
 
     // render
@@ -250,8 +211,6 @@ int main(int argc, char *argv[]) {
     // bind texture
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture1);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, texture2);
 
     // activate shader
     myShader.use();
@@ -268,7 +227,7 @@ int main(int argc, char *argv[]) {
 
     glBindVertexArray(VAO);
 
-    for (unsigned int i = 0; i < 2; i++) {
+    for (unsigned int i = 0; i < 6; i++) {
       glm::mat4 model = glm::mat4(1.0f);
       model = glm::translate(model, cubePositions[i]);
       float angle = 20.0f * i;

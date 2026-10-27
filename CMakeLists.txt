@@ -20,6 +20,8 @@ target_sources(main.out
         src/stb.cc
         src/camera.cc
         src/node.cc
+        src/rendering_engine.cc
+        src/cube.cc
 
     PUBLIC
         FILE_SET HEADERS
@@ -30,6 +32,8 @@ target_sources(main.out
             src/main.h
             src/camera.h
             src/node.h
+            src/rendering_engine.h
+            src/cube.h
 )
 
 add_library(glad)

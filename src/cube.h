@@ -33,18 +33,21 @@ class Cube : public Node {
       0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
       -0.5f, 0.5f,  0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f};
 
+public:
   std::string Name;
   std::string TexturePath;
   unsigned char *TextureData;
+  // TODO: convert to a texture class maybe
+  int TextureWidth;
+  int TextureHeight;
+  int NrChannels;
   float vertices[];
 
-public:
   Cube(std::string Name, std::string texturePath);
   Cube();
 
 private:
-  int load_texture_data(std::string texturePath, int textureWidth,
-                        int textureHeight, int nrChannels);
+  int load_texture_data(std::string texturePath);
   int invariant();
 };
 
