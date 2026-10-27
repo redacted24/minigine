@@ -26,19 +26,12 @@
       <ul>
         <li><a href="#built-with">Built With</a></li>
       </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
+        <ul>
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#examples">Examples</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
@@ -48,42 +41,37 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-I've wanted to learn graphics programming, how to use OpenGL, and how game engines work, so I am making my own. All is still work in progress.
+I've wanted to learn graphics programming, how to use OpenGL, and how game engines work, so I am making my own! All is still work in progress.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- GETTING STARTED -->
-## Getting Started
-
-To 
+### Built With
+* C++
+* OpenGL
+* SDL3
+* glad
+* Freetype
 
 ### Prerequisites
-
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+Have all required libraries installed.
 
 ### Installation
 
+Simply run the bash script and run the executable.
+
+```sh
+./run.sh
+./main.out
+```
+
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 ## Examples
 
 ### Minecraft Chunk Generator with Perlin Noise
 
 In progress.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- LICENSE -->
 ## License
