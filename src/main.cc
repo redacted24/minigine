@@ -186,23 +186,7 @@ int main(int argc, char *argv[]) {
     const bool *state = SDL_GetKeyboardState(NULL);
 
     // TODO: Change direction input to allow multidirectional movement
-    if (state[SDL_SCANCODE_W]) {
-      camera->ProcessKeyboard(FORWARD, deltaTime);
-    } else if (state[SDL_SCANCODE_A]) {
-      camera->ProcessKeyboard(LEFT, deltaTime);
-    } else if (state[SDL_SCANCODE_S]) {
-      camera->ProcessKeyboard(BACKWARD, deltaTime);
-    } else if (state[SDL_SCANCODE_D]) {
-      camera->ProcessKeyboard(RIGHT, deltaTime);
-    } else if (state[SDL_SCANCODE_LSHIFT]) {
-      camera->ProcessKeyboard(DOWN, deltaTime);
-    } else if (state[SDL_SCANCODE_SPACE]) {
-      camera->ProcessKeyboard(UP, deltaTime);
-    } else if (state[SDL_SCANCODE_ESCAPE]) {
-      delete cube;
-      spdlog::info("Escape command received, closing app");
-      break;
-    }
+    camera->ProcessKeyboard(state, deltaTime);
 
     // render
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

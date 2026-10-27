@@ -51,25 +51,29 @@ glm::mat4 Camera::GetViewMatrix() {
   return glm::lookAt(Position, Position + Front, Up);
 }
 
-void Camera::ProcessKeyboard(CameraMovement direction, float deltaTime) {
-  float velocity = MovementSpeed * deltaTime;
-  if (direction == FORWARD) {
-    Position += Front * velocity;
+void Camera::ProcessKeyboard(const bool *state, float deltaTime) {
+  glm::vec3 velocity_vector = glm::vec3(0);
+  float speed = MovementSpeed * deltaTime;
+  if (state[SDL_SCANCODE_W]) {
+    velocity_vector += Front;
   };
-  if (direction == BACKWARD) {
-    Position -= Front * velocity;
+  if (state[SDL_SCANCODE_S]) {
+    velocity_vector -= Front;
   };
-  if (direction == LEFT) {
-    Position -= Right * velocity;
+  if (state[SDL_SCANCODE_A]) {
+    velocity_vector -= Right;
   };
-  if (direction == RIGHT) {
-    Position += Right * velocity;
+  if (state[SDL_SCANCODE_D]) {
+    velocity_vector += Right;
   };
-  if (direction == DOWN) {
-    Position -= WorldUp * velocity;
+  if (state[SDL_SCANCODE_LSHIFT]) {
+    velocity_vector -= WorldUp;
   };
-  if (direction == UP) {
-    Position += WorldUp * velocity;
+  if (state[SDL_SCANCODE_SPACE]) {
+    velocity_vector += WorldUp;
+  }
+  if (glm::length(velocity_vector) != 0) {
+    Position += glm::normalize(velocity_vector) * speed;
   }
 }
 

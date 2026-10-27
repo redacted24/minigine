@@ -34,41 +34,16 @@ public:
   Camera(float poX, float posY, float posZ, float upX, float upY, float upZ,
          float yaw, float pitch);
 
-  /**
-   * @brief Returns view matrix calculated with Euler Angles and LookAt Matrix
-   */
   glm::mat4 GetViewMatrix();
 
-  /**
-   * @brief Process keyboard inputs
-   *
-   * @param direction An element from the CameraMovement enum, indicating the
-   * direction of movement
-   * @param deltaTime time elapsed since last processed frame
-   */
-  void ProcessKeyboard(CameraMovement direction, float deltaTime);
+  void ProcessKeyboard(const bool *state, float deltaTime);
 
-  /**
-   * @brief Process mouse inputs and change yaw and pitch based on input.
-   *
-   * @param xoffset the amount moved in x, relative to the last mouse position
-   * @param yoffset the amount moved in y, relative to the last mouse position
-   * @param constrainPitch whether to lock the pitch to feet and ceiling.
-   */
   void ProcessMouseMovement(float xoffset, float yoffset,
                             GLboolean constrainPitch = true);
 
-  /**
-   * @brief Process mouse scroll action.
-   *
-   * @param yoffset Y position offset since last mouse position
-   */
   void ProcessMouseScroll(float yoffset);
 
 private:
-  /**
-   * @brief Calculate front vector from Camera's updated Euler Angles
-   */
   void updateCameraVectors();
 };
 
