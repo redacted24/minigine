@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.23)
 
-project(perlin)
+project(minigine)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -10,6 +10,7 @@ set(CMAKE_DEBUG_POSTFIX "_debug")
 find_package(SDL3 REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(glm REQUIRED)
+find_package(Freetype REQUIRED)
 
 add_executable(main.out)
 
@@ -63,5 +64,5 @@ target_link_libraries(main.out
         SDL3
         spdlog::spdlog
         glad
+        Freetype::Freetype
 )
-

@@ -15,6 +15,7 @@
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
+#include <freetype2/ft2build.h>
 #include <glad/glad.h>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
@@ -22,6 +23,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <math.h>
 #include <stdio.h>
+#include FT_FREETYPE_H
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
@@ -153,6 +155,28 @@ int main(int argc, char *argv[]) {
   bool firstMouse = true;
   float lastX = 400, lastY = 300;
 
+  // FREETYPE
+  // each ft returns nonzero on error
+  FT_Library ft;
+  if (FT_Init_FreeType(&ft)) {
+    spdlog::error("Could not initialize Freetype library.");
+    return -1;
+  }
+
+  FT_Face face;
+  std::string font = "fonts/CaskaydiaMonoNerdFont-Regular.ttf";
+  if (FT_New_Face(ft, font.c_str(), 0, &face)) {
+    spdlog::error("Could not load font {}", font);
+    return -1;
+  }
+
+  FT_Set_Pixel_Sizes(face, 0, 48);
+
+  if (FT_Load_Char(face, 'X', FT_LOAD_RENDER)) {
+    spdlog::error("Freetype failed to load glyph {}", 'X');
+    return -1;
+  }
+
   // * -------------------------------------------------- *
   //
   //
@@ -164,18 +188,38 @@ int main(int argc, char *argv[]) {
   // * -------------------------------------------------- *
 
   PerlinNoise *perlin = new PerlinNoise(); // initialize perlin noise class
-  spdlog::debug("{}", perlin->noise(0.0f, 0.1f, 0.1f));
+  spdlog::debug("{}", perlin->noise(3.0f, 0.0f, 0.1f));
 
   Camera *camera = new Camera(glm::vec3(0.0f, 5.0f, 10.0f));
-
-  // init the board or zone to render. let's say 10x10
   int rows = 10;
   int cols = 10;
 
+  // std::vector<glm::vec3> cubePositions;
+  // for (float i = 0; i < rows; i++) {
+  //   for (float j = 0; j < cols; j++) {
+  //     cubePositions.push_back(glm::vec3(i, 0.0f, j));
+  //   }
+  // }
+
+  // TODO: render boxes under every height, etc.
+  // init the board or zone to render. let's say 10x10x10
   std::vector<glm::vec3> cubePositions;
-  for (float i = 0; i < rows; i++) {
-    for (float j = 0; j < cols; j++) {
-      cubePositions.push_back(glm::vec3(i, 0.0f, j));
+  int size = 10;
+  int noise_arr[size][size][size];
+  for (int i = 0; i < size; i++) {
+    for (int j = 0; j < size; j++) {
+      for (int k = 0; k < size; k++) {
+        float noise_value =
+            perlin->noise((float)i + 0.5f, (float)j + 0.5f, (float)k + 0.5f);
+        // clamp value
+        noise_value = (noise_value + 1) / 2.0f;
+        if (noise_value > 0.7) {
+          noise_arr[i][j][k] = 1;
+          cubePositions.push_back(glm::vec3(i, j, k));
+        } else {
+          noise_arr[i][j][k] = 0;
+        }
+      }
     }
   }
 
