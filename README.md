@@ -9,15 +9,13 @@
   <a href="https://github.com/redacted24/perlin">
   </a>
 
-<h3 align="center">Perlin Noise Generator</h3>
+<h3 align="center">Minigine</h3>
 
   <p align="center">
-    A Perlin Noise visualizer made in OpenGL.
+    Simple 3D game engine made with OpenGL and C++.
     <br />
   </p>
 </div>
-
-
 
 <!-- TABLE OF CONTENTS -->
 <details>
@@ -50,16 +48,14 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-A Minecraft terrain generator with Perlin noise, rendered in OpenGL. Also a starting ground for my game engine.
-
+I've wanted to learn graphics programming, how to use OpenGL, and how game engines work, so I am making my own. All is still work in progress.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+To 
 
 ### Prerequisites
 
@@ -83,70 +79,24 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-<!-- ROADMAP -->
-## Roadmap
+## Examples
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+### Minecraft Chunk Generator with Perlin Noise
 
-See the [open issues](https://github.com/redacted24/repo_name/issues) for a full list of proposed features (and known issues).
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- CONTRIBUTING -->
-## Contributing
-
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-### Top contributors:
-
-<a href="https://github.com/redacted24/repo_name/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=redacted24/repo_name" alt="contrib.rocks image" />
-</a>
-
-
+In progress.
 
 <!-- LICENSE -->
 ## License
 
-Distributed under the project_license. See `LICENSE.txt` for more information.
+Distributed under the MIT license. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- CONTACT -->
-## Contact
-
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
-
-Project Link: [https://github.com/redacted24/repo_name](https://github.com/redacted24/repo_name)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* []()
-* []()
-* []()
+* [LearnOpenGL](https://learnopengl.com/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
