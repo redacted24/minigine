@@ -51,15 +51,20 @@ I've wanted to learn graphics programming, how to use OpenGL, and how game engin
 * Freetype
 
 ### Prerequisites
-Have all required libraries installed.
+This project compiled and ran successfully on Linux 7.2.11-arch1-1.
+Have all of the following libraries installed:
+
+* GL (opengl)
+* SDL3 (window and input management)
+* spdlog (logging)
+* Freetype (ttf)
 
 ### Installation
 
-Simply run the bash script and run the executable.
+Run the bash script to build and execute the program.
 
 ```sh
 ./run.sh
-./main.out
 ```
 
 
