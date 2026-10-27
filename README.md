@@ -52,12 +52,20 @@ I've wanted to learn graphics programming, how to use OpenGL, and how game engin
 
 ### Prerequisites
 This project compiled and ran successfully on Linux 7.2.11-arch1-1.
-Have all of the following libraries installed:
+The following are libraries used by the program:
 
 * GL (opengl)
 * SDL3 (window and input management)
 * spdlog (logging)
 * Freetype (ttf)
+
+... and stuff that your system may already have:
+
+* X11
+* pthread
+* Xrandr
+* Xi
+* dl
 
 ### Installation
 
