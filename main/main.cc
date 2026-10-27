@@ -188,36 +188,33 @@ int main(int argc, char *argv[]) {
   // * -------------------------------------------------- *
 
   PerlinNoise *perlin = new PerlinNoise(); // initialize perlin noise class
-  spdlog::debug("{}", perlin->noise(3.0f, 0.0f, 0.1f));
 
   Camera *camera = new Camera(glm::vec3(0.0f, 5.0f, 10.0f));
-  int rows = 10;
-  int cols = 10;
+  int x_num = 10;
+  int z_num = 10;
+  const int MAX_HEIGHT_CHUNK = 5;
 
-  // std::vector<glm::vec3> cubePositions;
-  // for (float i = 0; i < rows; i++) {
-  //   for (float j = 0; j < cols; j++) {
-  //     cubePositions.push_back(glm::vec3(i, 0.0f, j));
-  //   }
-  // }
-
-  // TODO: render boxes under every height, etc.
-  // init the board or zone to render. let's say 10x10x10
   std::vector<glm::vec3> cubePositions;
-  int size = 10;
-  int noise_arr[size][size][size];
-  for (int i = 0; i < size; i++) {
-    for (int j = 0; j < size; j++) {
-      for (int k = 0; k < size; k++) {
-        float noise_value =
-            perlin->noise((float)i + 0.5f, (float)j + 0.5f, (float)k + 0.5f);
-        // clamp value
-        noise_value = (noise_value + 1) / 2.0f;
-        if (noise_value > 0.7) {
-          noise_arr[i][j][k] = 1;
-          cubePositions.push_back(glm::vec3(i, j, k));
-        } else {
-          noise_arr[i][j][k] = 0;
+  int noise_arr[x_num][z_num];
+  for (int i = 0; i < x_num; i++) {
+    for (int j = 0; j < z_num; j++) {
+      float perlin_noise = perlin->noise(i + 0.5f, j + 0.5f, 0.0f + 0.5f);
+      perlin_noise = ((perlin_noise + 1.0f) / 2.0f) *
+                     (float)MAX_HEIGHT_CHUNK; // scale to [0, 5]
+      noise_arr[i][j] = perlin_noise;
+    }
+  }
+
+  for (int i = 0; i < x_num; i++) {
+    for (int j = 0; j < z_num; j++) {
+      if (noise_arr[i][j] > MAX_HEIGHT_CHUNK) {
+        spdlog::critical(
+            "noise array has value {} which is larger than {}, shutting down",
+            noise_arr[i][j], MAX_HEIGHT_CHUNK);
+        return 1;
+      } else {
+        for (int k = 0; k < noise_arr[i][j]; k++) {
+          cubePositions.push_back({(float)i, (float)k, (float)j});
         }
       }
     }

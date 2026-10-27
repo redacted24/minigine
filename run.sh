@@ -11,6 +11,8 @@ if [ $# -eq 0 ]; then
 
     cp build/debug/compile_commands.json compile_commands.json
     echo 'compile_commands.json created'
+    echo "executing ${target}"
+    ./${target}
 else
     case $1 in
     release)
