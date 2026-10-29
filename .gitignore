@@ -1,5 +1,6 @@
 # Build directories and binary files
 compile_commands.json
+.gdbinit
 **/minigine
 *.out
 build/

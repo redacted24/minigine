@@ -10,11 +10,9 @@ class Shader {
 public:
   unsigned int ID;
 
+  Shader();
   Shader(const char *vertexPath, const char *fragmentPath);
 
-  /**
-   * @brief Use or activate shader.
-   */
   void use();
 
   void setBool(const std::string &name, bool value) const;

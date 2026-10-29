@@ -7,6 +7,7 @@ target_sources(core
         rendering_engine.cc
         cube.cc
         perlin_noise.cc
+        text.cc
     PUBLIC
         FILE_SET HEADERS
         BASE_DIRS
@@ -17,8 +18,10 @@ target_sources(core
             rendering_engine.h
             cube.h
             perlin_noise.h
+            text.h
 )
 target_link_libraries(core
     PUBLIC
         thirdparty
+        drivers
 )
