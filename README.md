@@ -59,7 +59,7 @@ The following are libraries used by the program:
 * spdlog (logging)
 * Freetype (ttf)
 
-... and stuff that your system may already have:
+... and what your system may already have:
 
 * X11
 * pthread
