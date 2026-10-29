@@ -37,12 +37,6 @@ jobs:
           libspdlog-dev \
           libfreetype-dev
 
-    # Integrate vcpkg with GitHub Actions caching to speed up builds
-    - name: Setup vcpkg
-      uses: lukka/run-vcpkg@v11
-      with:
-        vcpkgGitCommitId: 'latest' # Or specify a specific commit/tag for reproducibility
-
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
