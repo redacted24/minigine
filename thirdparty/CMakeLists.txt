@@ -5,6 +5,11 @@ find_package(glm REQUIRED)
 find_package(Freetype REQUIRED)
 
 add_library(thirdparty)
+target_include_directories(thirdparty
+    PUBLIC
+        ./
+)
+
 target_sources(thirdparty
     PRIVATE
         glad/glad.c
@@ -28,7 +33,7 @@ target_link_libraries(thirdparty
         Xrandr
         Xi
         dl
-        SDL3
+        SDL3::SDL3
         spdlog::spdlog
         Freetype::Freetype
 )

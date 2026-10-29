@@ -5,7 +5,7 @@
 #include "rendering_engine.h"
 #include "shader.h"
 #include "spdlog/spdlog.h"
-#include "stb/stb_image.h"
+#include "stb_image/stb_image.h"
 #include "text.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>

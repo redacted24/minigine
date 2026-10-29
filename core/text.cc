@@ -1,8 +1,9 @@
 #include "text.h"
 #include "shader.h"
-#include <freetype/freetype.h>
+#include <ft2build.h>
 #include <spdlog/spdlog.h>
 #include <string>
+#include FT_FREETYPE_H
 
 TextRenderer::TextRenderer() {
   spdlog::warn("Initialized text renderer without a fragment/vertex shader.");

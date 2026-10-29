@@ -1,5 +1,5 @@
 #include "cube.h"
-#include "stb/stb_image.h"
+#include "stb_image/stb_image.h"
 #include <glm/glm.hpp>
 #include <spdlog/spdlog.h>
 

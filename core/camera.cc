@@ -6,7 +6,7 @@
 #include <spdlog/spdlog.h>
 
 #include "camera.h"
-#include "stb/stb_image.h"
+#include "stb_image/stb_image.h"
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch)
     : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED),

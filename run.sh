@@ -3,7 +3,7 @@ set -e
 target='minigine'
 
 if [ $# -eq 0 ]; then
-    cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug -G Ninja
+    cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug -Wno-deprecated -G Ninja
     cmake --build build/debug --verbose
     echo "Copying build/debug/main/${target} to project root..."
     cp build/debug/main/${target} .
@@ -16,7 +16,7 @@ if [ $# -eq 0 ]; then
 else
     case $1 in
     release)
-        cmake -S . -B build/release -G Ninja
+        cmake -S . -B build/release -Wno-deprecated -G Ninja
         cmake --build build/release --verbose
 
         echo "Copying build/release/main/${target} to project root..."
@@ -25,6 +25,11 @@ else
 
         ln -sf build/release/compile_commands.json compile_commands.json
         echo 'compile_commands.json created'
+        ;;
+    test)
+        cmake -S . -B build/debug -DCMAKE_BUILD_TYPE=Debug -Wno-deprecated -G Ninja
+        cmake --build build/debug --verbose
+        cd build/debug/tests && ctest
         ;;
 
     clean)

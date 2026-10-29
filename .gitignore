@@ -1,4 +1,6 @@
 # Build directories and binary files
+
+.secrets
 compile_commands.json
 .gdbinit
 **/minigine
