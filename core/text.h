@@ -25,10 +25,11 @@ public:
   Shader TextShader;
 
   TextRenderer();
-  int initialize_shaders(const char *vertexPath, const char *fragmentPath);
-  int initialize_font(std::string fontPath);
-  void RenderText(std::string text, float x, float y, float scale,
-                  glm::vec3 color);
+  int initialize_shaders(const char *p_vertex_path,
+                         const char *p_fragment_path);
+  int initialize_font(std::string p_font_path);
+  void RenderText(std::string p_text, float p_x, float p_y, float p_scale,
+                  glm::vec3 p_color);
 };
 
 #endif // TEXT_H

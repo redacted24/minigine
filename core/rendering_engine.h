@@ -12,7 +12,7 @@ public:
    * @param object The object to draw.
    * @return Nonzero on failure
    */
-  static int prepare_cube_for_render(Cube *object);
+  static int prepare_cube_for_render(Cube *p_object);
 };
 
 #endif // RENDERING_ENGINE_H

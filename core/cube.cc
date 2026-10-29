@@ -7,13 +7,13 @@ Cube::Cube() : TexturePath("") {
   spdlog::warn("Cube does not have a texture path.");
 }
 
-Cube::Cube(std::string name, std::string texturePath) {
-  Name = name;
-  TexturePath = texturePath;
+Cube::Cube(std::string p_name, std::string p_texture_path) {
+  Name = p_name;
+  TexturePath = p_texture_path;
   load_texture_data(TexturePath);
 };
 
-int Cube::load_texture_data(std::string texturePath) {
+int Cube::load_texture_data(std::string p_texture_path) {
   if (TexturePath == "") {
     spdlog::warn("No texture data for Cube {}", Name);
     return -1;
@@ -23,9 +23,9 @@ int Cube::load_texture_data(std::string texturePath) {
                           &NrChannels, 0);
 
   if (!TextureData) {
-    spdlog::error("Failed to lo texture {}", texturePath);
+    spdlog::error("Failed to lo texture {}", p_texture_path);
   } else {
-    spdlog::debug("Loaded texture {} for node {}", texturePath, Name);
+    spdlog::debug("Loaded texture {} for node {}", p_texture_path, Name);
   }
   return 0;
 }

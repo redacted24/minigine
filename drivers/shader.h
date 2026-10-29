@@ -11,26 +11,27 @@ public:
   unsigned int ID;
 
   Shader();
-  Shader(const char *vertexPath, const char *fragmentPath);
+  Shader(const char *p_vertex_path, const char *p_fragment_path);
 
   void use();
 
-  void setBool(const std::string &name, bool value) const;
-  void setInt(const std::string &name, int value) const;
-  void setFloat(const std::string &name, float value) const;
-  void setMat2(const std::string &name, const glm::mat2 &mat) const;
-  void setMat3(const std::string &name, const glm::mat3 &mat) const;
-  void setMat4(const std::string &name, const glm::mat4 &mat) const;
-  void setVec2(const std::string &name, const glm::vec2 &value) const;
-  void setVec2(const std::string &name, float x, float y) const;
-  void setVec3(const std::string &name, const glm::vec3 &value) const;
-  void setVec3(const std::string &name, float x, float y, float z) const;
-  void setVec4(const std::string &name, const glm::vec4 &value) const;
-  void setVec4(const std::string &name, float x, float y, float z,
-               float w) const;
+  void setBool(const std::string &p_name, bool p_value) const;
+  void setInt(const std::string &p_name, int p_value) const;
+  void setFloat(const std::string &p_name, float p_value) const;
+  void setMat2(const std::string &p_name, const glm::mat2 &p_mat) const;
+  void setMat3(const std::string &p_name, const glm::mat3 &p_mat) const;
+  void setMat4(const std::string &p_name, const glm::mat4 &p_mat) const;
+  void setVec2(const std::string &p_name, const glm::vec2 &p_value) const;
+  void setVec2(const std::string &p_name, float p_x, float p_y) const;
+  void setVec3(const std::string &p_name, const glm::vec3 &p_value) const;
+  void setVec3(const std::string &p_name, float p_x, float p_y,
+               float p_z) const;
+  void setVec4(const std::string &p_name, const glm::vec4 &p_value) const;
+  void setVec4(const std::string &p_name, float p_x, float p_y, float p_z,
+               float p_w) const;
 
 private:
-  void checkCompileErrors(unsigned int shader, std::string type);
+  void checkCompileErrors(unsigned int p_shader, std::string p_type);
 };
 
 #endif // SHADER_H

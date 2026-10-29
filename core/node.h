@@ -8,7 +8,7 @@ class Node {
   glm::vec3 Position;
 
 public:
-  Node(glm::vec3 origin, glm::vec3 position);
+  Node(glm::vec3 p_origin, glm::vec3 p_position);
   Node();
 };
 

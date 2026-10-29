@@ -9,13 +9,13 @@ TextRenderer::TextRenderer() {
   spdlog::warn("Initialized text renderer without a fragment/vertex shader.");
 };
 
-int TextRenderer::initialize_shaders(const char *vertexPath,
-                                     const char *fragmentPath) {
-  TextShader = Shader(vertexPath, fragmentPath);
+int TextRenderer::initialize_shaders(const char *p_vertex_path,
+                                     const char *p_fragment_path) {
+  TextShader = Shader(p_vertex_path, p_fragment_path);
   return 0;
 }
 
-int TextRenderer::initialize_font(std::string fontPath) {
+int TextRenderer::initialize_font(std::string p_font_path) {
   FT_Library ft;
   if (FT_Init_FreeType(&ft)) {
     spdlog::error("Could not initialize Freetype library.");
@@ -77,34 +77,35 @@ int TextRenderer::initialize_font(std::string fontPath) {
   glGenBuffers(1, &VBO);
   glBindVertexArray(VAO);
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr,
+               GL_DYNAMIC_DRAW);
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+  glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
 
   return 0;
 }
 
-void TextRenderer::RenderText(std::string text, float x, float y, float scale,
-                              glm::vec3 color) {
+void TextRenderer::RenderText(std::string p_text, float p_x, float p_y,
+                              float p_scale, glm::vec3 p_color) {
   // activate corresponding render state
   TextShader.use();
-  glUniform3f(glGetUniformLocation(TextShader.ID, "textColor"), color.x,
-              color.y, color.z);
+  glUniform3f(glGetUniformLocation(TextShader.ID, "textColor"), p_color.x,
+              p_color.y, p_color.z);
   glActiveTexture(GL_TEXTURE0);
   glBindVertexArray(VAO);
 
   // iterate through all characters
   std::string::const_iterator c;
-  for (c = text.begin(); c != text.end(); c++) {
+  for (c = p_text.begin(); c != p_text.end(); c++) {
     Character ch = Characters[*c];
 
-    float xpos = x + ch.Bearing.x * scale;
-    float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+    float xpos = p_x + ch.Bearing.x * p_scale;
+    float ypos = p_y - (ch.Size.y - ch.Bearing.y) * p_scale;
 
-    float w = ch.Size.x * scale;
-    float h = ch.Size.y * scale;
+    float w = ch.Size.x * p_scale;
+    float h = ch.Size.y * p_scale;
     // update VBO for each character
     float vertices[6][4] = {
         {xpos, ypos + h, 0.0f, 0.0f},    {xpos, ypos, 0.0f, 1.0f},
@@ -122,8 +123,8 @@ void TextRenderer::RenderText(std::string text, float x, float y, float scale,
     glDrawArrays(GL_TRIANGLES, 0, 6);
     // now advance cursors for next glyph (note that advance is number of 1/64
     // pixels)
-    x += (ch.Advance >> 6) *
-         scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+    p_x += (ch.Advance >> 6) *
+           p_scale; // bitshift by 6 to get value in pixels (2^6 = 64)
   }
   glBindVertexArray(0);
   glBindTexture(GL_TEXTURE_2D, 0);

@@ -3,7 +3,7 @@
 #include <glad/glad.h>
 #include <spdlog/spdlog.h>
 
-int RenderingEngine::prepare_cube_for_render(Cube *object) {
+int RenderingEngine::prepare_cube_for_render(Cube *p_object) {
   // Check that object has required fields
   unsigned int texture1;
   glGenTextures(1, &texture1);
@@ -13,15 +13,15 @@ int RenderingEngine::prepare_cube_for_render(Cube *object) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  if (!object->TextureWidth) {
-    spdlog::debug("Node {} does not have a texture width.", object->Name);
-  } else if (!object->TextureHeight) {
-    spdlog::debug("Node {} does not have a texture height.", object->Name);
+  if (!p_object->TextureWidth) {
+    spdlog::debug("Node {} does not have a texture width.", p_object->Name);
+  } else if (!p_object->TextureHeight) {
+    spdlog::debug("Node {} does not have a texture height.", p_object->Name);
   }
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, object->TextureWidth,
-               object->TextureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE,
-               object->TextureData);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, p_object->TextureWidth,
+               p_object->TextureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE,
+               p_object->TextureData);
   glGenerateMipmap(GL_TEXTURE_2D);
-  spdlog::debug("Prepared cube {} for render", object->Name);
+  spdlog::debug("Prepared cube {} for render", p_object->Name);
   return 0;
 }

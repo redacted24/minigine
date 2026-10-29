@@ -43,11 +43,11 @@ public:
   int NrChannels;
   float vertices[];
 
-  Cube(std::string Name, std::string texturePath);
+  Cube(std::string p_name, std::string p_texture_path);
   Cube();
 
 private:
-  int load_texture_data(std::string texturePath);
+  int load_texture_data(std::string p_texture_path);
   int invariant();
 };
 

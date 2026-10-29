@@ -1,7 +1,5 @@
 #include "main.h"
 #include "camera.h"
-#include "cube.h"
-#include "perlin_noise.h"
 #include "rendering_engine.h"
 #include "shader.h"
 #include "spdlog/spdlog.h"
@@ -21,17 +19,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <map>
-#include <math.h>
-#include <stdio.h>
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-static SDL_Window *window = NULL;
-static SDL_Renderer *renderer = NULL;
+static SDL_Window *window = nullptr;
+static SDL_Renderer *renderer = nullptr;
 
 unsigned int VAO, VBO;
 
