@@ -26,13 +26,13 @@ jobs:
       with:
         packages: build-essential gh cmake libglm-dev ninja-build libgl-dev libx11-dev libxrandr-dev libxi-dev libspdlog-dev libfreetype-dev
 
-    - name: Authenticate Github CLI
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh --version
-        gh auth status
-        gh api user
+    # - name: Authenticate Github CLI
+    #   env:
+    #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   run: |
+    #     gh --version
+    #     gh auth status
+    #     gh api user
 
     - uses: libsdl-org/setup-sdl@main
       id: sdl
