@@ -5,6 +5,7 @@
 #include "shader.h"
 #include "spdlog/spdlog.h"
 #include "stb_image/stb_image.h"
+#include "text.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
@@ -90,13 +91,11 @@ int main(int argc, char *argv[]) {
   //
   // ===============================================
 
-  // glEnable(GL_BLEND);
-  // spdlog::debug("Enabling GL_BLEND");
-  // glEnable(GL_CULL_FACE);
-  // spdlog::debug("Enabling GL_CULL_FACE");
+  glEnable(GL_BLEND);
+  spdlog::debug("Enabling GL_BLEND");
   glEnable(GL_DEPTH_TEST);
   spdlog::debug("Enabling GL_DEPTH_TEST");
-  // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // Creation of vertex shader
   Shader myShader("assets/shaders/main.vs.glsl", "assets/shaders/main.fs.glsl");
@@ -128,18 +127,6 @@ int main(int argc, char *argv[]) {
 
   myShader.use();
   glUniform1i(glGetUniformLocation(myShader.ID, "texture1"), 0);
-
-  // TextRenderer textRenderer;
-  // textRenderer.initialize_shaders("assets/shaders/text.vs.glsl",
-  //                                 "assets/shaders/text.fs.glsl");
-  // textRenderer.initialize_font("assets/fonts/arial.ttf");
-  // textRenderer.TextShader.use();
-  //
-  // glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH),
-  //                                   0.0f, static_cast<float>(WINDOW_HEIGHT));
-  // glUniformMatrix4fv(
-  //     glGetUniformLocation(textRenderer.TextShader.ID, "projection"), 1,
-  //     GL_FALSE, glm::value_ptr(projection));
 
   // initialize perlin noise
   PerlinNoise *perlin = new PerlinNoise();
@@ -174,6 +161,18 @@ int main(int argc, char *argv[]) {
       }
     }
   }
+
+  TextRenderer textRenderer;
+  textRenderer.initialize_shaders("assets/shaders/text.vs.glsl",
+                                  "assets/shaders/text.fs.glsl");
+  textRenderer.initialize_font("assets/fonts/arial.ttf");
+  textRenderer.TextShader.use();
+
+  glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH),
+                                    0.0f, static_cast<float>(WINDOW_HEIGHT));
+  glUniformMatrix4fv(
+      glGetUniformLocation(textRenderer.TextShader.ID, "projection"), 1,
+      GL_FALSE, glm::value_ptr(projection));
 
   // ===============================================
   //
@@ -214,6 +213,8 @@ int main(int argc, char *argv[]) {
       }
     }
 
+    // TODO: separate object and ui text rendering
+
     // keyboard input
     const bool *state = SDL_GetKeyboardState(nullptr);
     camera->ProcessKeyboard(state, deltaTime);
@@ -225,11 +226,6 @@ int main(int argc, char *argv[]) {
     // bind texture
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture1);
-
-    // textRenderer.RenderText("This is sample text", 25.0f, 25.0f, 1.0f,
-    //                         glm::vec3(0.5, 0.8f, 0.2f));
-    // textRenderer.RenderText("(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f,
-    //                         glm::vec3(0.3, 0.7f, 0.9f));
 
     // activate shader
     myShader.use();
@@ -253,6 +249,13 @@ int main(int argc, char *argv[]) {
 
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
+
+    glEnable(GL_CULL_FACE);
+    textRenderer.RenderText("This is sample text", 25.0f, 25.0f, 1.0f,
+                            glm::vec3(0.5, 0.8f, 0.2f));
+    textRenderer.RenderText("(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f,
+                            glm::vec3(0.3, 0.7f, 0.9f));
+    glDisable(GL_CULL_FACE);
 
     SDL_GL_SwapWindow(window);
   }

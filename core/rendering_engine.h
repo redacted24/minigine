@@ -7,6 +7,7 @@ class RenderingEngine {
 public:
   RenderingEngine() = delete;
 
+  // HACK: this feels like a hack.
   static int prepare_cube_for_render(Cube *p_object,
                                      GLuint *p_processed_texture_loc);
 };
