@@ -12,10 +12,10 @@
 class PerlinNoise {
 public:
   PerlinNoise();
-  double noise(double x, double y, double z);
-  double fade(double t);
-  double lerp(double t, double a, double b);
-  double grad(int hash, double x, double y, double z);
+  double noise(double p_x, double p_y, double p_z);
+  double fade(double p_t);
+  double lerp(double p_t, double p_a, double p_b);
+  double grad(int p_hash, double p_x, double p_y, double p_z);
   std::vector<int> p;
   std::vector<int> permutation;
 };

@@ -1,0 +1,21 @@
+# .github/workflows/pre-commit.yml
+name: pre-commit
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-node-version: '3.11'
+
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.1

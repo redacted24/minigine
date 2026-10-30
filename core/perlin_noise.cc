@@ -31,45 +31,45 @@ PerlinNoise::PerlinNoise() {
   }
 }
 
-double PerlinNoise::noise(double x, double y, double z) {
-  int X = (int)floor(x) & 255, // FIND UNIT CUBE THAT
-      Y = (int)floor(y) & 255, // CONTAINS POINT.
-      Z = (int)floor(z) & 255;
-  x -= floor(x); // FIND RELATIVE X,Y,Z
-  y -= floor(y); // OF POINT IN CUBE.
-  z -= floor(z);
-  double u = fade(x), // COMPUTE FADE CURVES
-      v = fade(y),    // FOR EACH OF X,Y,Z.
-      w = fade(z);
+double PerlinNoise::noise(double p_x, double p_y, double p_z) {
+  int X = (int)floor(p_x) & 255, // FIND UNIT CUBE THAT
+      Y = (int)floor(p_y) & 255, // CONTAINS POINT.
+      Z = (int)floor(p_z) & 255;
+  p_x -= floor(p_x); // FIND RELATIVE X,Y,Z
+  p_y -= floor(p_y); // OF POINT IN CUBE.
+  p_z -= floor(p_z);
+  double u = fade(p_x), // COMPUTE FADE CURVES
+      v = fade(p_y),    // FOR EACH OF X,Y,Z.
+      w = fade(p_z);
   int A = p[X] + Y, AA = p[A] + Z, AB = p[A + 1] + Z,     // HASH COORDINATES OF
       B = p[X + 1] + Y, BA = p[B] + Z, BB = p[B + 1] + Z; // THE 8 CUBE CORNERS,
 
   return lerp(w,
               lerp(v,
-                   lerp(u, grad(p[AA], x, y, z),        // AND ADD
-                        grad(p[BA], x - 1, y, z)),      // BLENDED
-                   lerp(u, grad(p[AB], x, y - 1, z),    // RESULTS
-                        grad(p[BB], x - 1, y - 1, z))), // FROM  8
+                   lerp(u, grad(p[AA], p_x, p_y, p_z),        // AND ADD
+                        grad(p[BA], p_x - 1, p_y, p_z)),      // BLENDED
+                   lerp(u, grad(p[AB], p_x, p_y - 1, p_z),    // RESULTS
+                        grad(p[BB], p_x - 1, p_y - 1, p_z))), // FROM  8
               lerp(v,
-                   lerp(u, grad(p[AA + 1], x, y, z - 1),   // CORNERS
-                        grad(p[BA + 1], x - 1, y, z - 1)), // OF CUBE
-                   lerp(u, grad(p[AB + 1], x, y - 1, z - 1),
-                        grad(p[BB + 1], x - 1, y - 1, z - 1))));
+                   lerp(u, grad(p[AA + 1], p_x, p_y, p_z - 1),   // CORNERS
+                        grad(p[BA + 1], p_x - 1, p_y, p_z - 1)), // OF CUBE
+                   lerp(u, grad(p[AB + 1], p_x, p_y - 1, p_z - 1),
+                        grad(p[BB + 1], p_x - 1, p_y - 1, p_z - 1))));
 }
 
-double PerlinNoise::lerp(double t, double a, double b) {
-  return a + t * (b - a);
+double PerlinNoise::lerp(double p_t, double p_a, double p_b) {
+  return p_a + p_t * (p_b - p_a);
 }
 
-double PerlinNoise::fade(double t) {
-  return t * t * t * (t * (t * 6 - 15) + 10);
+double PerlinNoise::fade(double p_t) {
+  return p_t * p_t * p_t * (p_t * (p_t * 6 - 15) + 10);
 }
 
-double PerlinNoise::grad(int hash, double x, double y, double z) {
-  int h = hash & 15;        // CONVERT LO 4 BITS OF HASH CODE
-  double u = h < 8 ? x : y, // INTO 12 GRADIENT DIRECTIONS.
-      v = h < 4                ? y
-          : h == 12 || h == 14 ? x
-                               : z;
+double PerlinNoise::grad(int p_hash, double p_x, double p_y, double p_z) {
+  int h = p_hash & 15;          // CONVERT LO 4 BITS OF HASH CODE
+  double u = h < 8 ? p_x : p_y, // INTO 12 GRADIENT DIRECTIONS.
+      v = h < 4                ? p_y
+          : h == 12 || h == 14 ? p_x
+                               : p_z;
   return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
 }

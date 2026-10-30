@@ -17,4 +17,3 @@ target_sources(minigine
         FILES
             main.h
 )
-

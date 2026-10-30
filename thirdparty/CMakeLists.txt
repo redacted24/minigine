@@ -37,4 +37,3 @@ target_link_libraries(thirdparty
         spdlog::spdlog
         Freetype::Freetype
 )
-
