@@ -251,10 +251,14 @@ int main(int argc, char *argv[]) {
     }
 
     glEnable(GL_CULL_FACE);
-    textRenderer.RenderText("This is sample text", 25.0f, 25.0f, 1.0f,
-                            glm::vec3(0.5, 0.8f, 0.2f));
-    textRenderer.RenderText("(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f,
-                            glm::vec3(0.3, 0.7f, 0.9f));
+    std::string camera_lookat_debug = std::format(
+        "Camera lookat: ({:.2f}, {:.2f}, {:.2f})\n Camera position: "
+        "({:.2f}, {:.2f}, {:.2f})",
+        camera->Front.x, camera->Front.y, camera->Front.z, camera->Position.x,
+        camera->Position.y, camera->Position.z);
+    textRenderer.RenderText(camera_lookat_debug, 5.0f,
+                            (float)WINDOW_HEIGHT - 30.0f, 0.5f,
+                            glm::vec3(0.0f, 0.0f, 0.0f));
     glDisable(GL_CULL_FACE);
 
     SDL_GL_SwapWindow(window);

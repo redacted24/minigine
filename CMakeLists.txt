@@ -4,7 +4,7 @@ cmake_policy(SET CMP0135 NEW)
 project(minigine)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_DEBUG_POSTFIX "_debug")
 set(CMAKE_CXX_CLANG_TIDY "clang-tidy"; "--warnings-as-errors=*")
