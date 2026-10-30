@@ -1,6 +1,6 @@
 #include "cube.h"
+#include "glad/glad.h"
 #include "stb_image/stb_image.h"
-#include <glm/glm.hpp>
 #include <spdlog/spdlog.h>
 
 Cube::Cube() : TexturePath("") {
@@ -19,10 +19,10 @@ int Cube::load_texture_data(std::string p_texture_path) {
     return -1;
   }
 
-  TextureData = stbi_load("assets/container.jpg", &TextureWidth, &TextureHeight,
-                          &NrChannels, 0);
+  RawTextureData = stbi_load(p_texture_path.c_str(), &TextureWidth,
+                             &TextureHeight, &NrChannels, 0);
 
-  if (!TextureData) {
+  if (!RawTextureData) {
     spdlog::error("Failed to lo texture {}", p_texture_path);
   } else {
     spdlog::debug("Loaded texture {} for node {}", p_texture_path, Name);

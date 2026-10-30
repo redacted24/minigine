@@ -1,4 +1,5 @@
 #include "cube.h"
+#include "glad/glad.h"
 #ifndef RENDERING_ENGINE_H
 #define RENDERING_ENGINE_H
 
@@ -6,13 +7,8 @@ class RenderingEngine {
 public:
   RenderingEngine() = delete;
 
-  /**
-   * @brief Draw the given object. (naive implementation)
-   *
-   * @param object The object to draw.
-   * @return Nonzero on failure
-   */
-  static int prepare_cube_for_render(Cube *p_object);
+  static int prepare_cube_for_render(Cube *p_object,
+                                     GLuint *p_processed_texture_loc);
 };
 
 #endif // RENDERING_ENGINE_H
