@@ -188,11 +188,24 @@ int main(int argc, char *argv[]) {
   bool firstMouse = true;
   float lastX = 400, lastY = 300;
 
+  int nbFrames = 0;
+  int lastTime = 0;
+
+  int frames_per_second = 0;
+
   while (running) {
     float currentFrame = static_cast<float>(SDL_GetTicks() / 1000.0f);
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     SDL_MouseMotionEvent mouseEvent;
+
+    nbFrames++;
+
+    if (currentFrame - (float)lastTime >= 1.0f) {
+      frames_per_second = nbFrames;
+      nbFrames = 0;
+      lastTime += 1.0f;
+    }
 
     // ===============================================
     //
@@ -252,13 +265,18 @@ int main(int argc, char *argv[]) {
 
     glEnable(GL_CULL_FACE);
     std::string camera_lookat_debug = std::format(
-        "Camera lookat: ({:.2f}, {:.2f}, {:.2f})\n Camera position: "
+        "Camera lookat: ({:.2f}, {:.2f}, {:.2f}) - Camera position: "
         "({:.2f}, {:.2f}, {:.2f})",
         camera->Front.x, camera->Front.y, camera->Front.z, camera->Position.x,
         camera->Position.y, camera->Position.z);
     textRenderer.RenderText(camera_lookat_debug, 5.0f,
-                            (float)WINDOW_HEIGHT - 30.0f, 0.5f,
+                            static_cast<float>(WINDOW_HEIGHT) - 30.0f, 0.5f,
                             glm::vec3(0.0f, 0.0f, 0.0f));
+
+    camera_lookat_debug = std::format("{:d}fps", frames_per_second);
+    textRenderer.RenderText(camera_lookat_debug, 5.0f,
+                            static_cast<float>(WINDOW_HEIGHT) - 55.0f, 0.5f,
+                            glm::vec3(0));
     glDisable(GL_CULL_FACE);
 
     SDL_GL_SwapWindow(window);
