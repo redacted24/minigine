@@ -16,6 +16,8 @@
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
 #include <glad/glad.h>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/quaternion_transform.hpp>
 #include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -28,11 +30,6 @@
 
 static SDL_Window *window = nullptr;
 static SDL_Renderer *renderer = nullptr;
-
-// uint32_t VAO, VBO, EBO;
-// uint32_t vertexShader;
-// uint32_t fragmentShader;
-// uint32_t shaderProgram;
 
 int success;
 
@@ -91,6 +88,8 @@ int main(int argc, char *argv[]) {
   //
   // ===============================================
 
+  int width, height, nrChannels;
+
   glEnable(GL_BLEND);
   spdlog::debug("Enabling GL_BLEND");
   glEnable(GL_DEPTH_TEST);
@@ -100,14 +99,17 @@ int main(int argc, char *argv[]) {
   // Creation of vertex shader
   Shader myShader("assets/shaders/main.vs.glsl", "assets/shaders/main.fs.glsl");
 
-  Cube *cube = new Cube("Container cube", "assets/container.jpg");
+  Cube *cube = new Cube("Grass cube", "assets/textures/grass_block_side.png",
+                        "assets/textures/grass_top.png");
 
   unsigned int VAO, VBO;
+  unsigned int VAO_topface, VBO_topface;
+
+  // VAO/VBO SIDES
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
 
   glBindVertexArray(VAO);
-
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::Vertices), Cube::Vertices,
                GL_STATIC_DRAW);
@@ -121,12 +123,69 @@ int main(int argc, char *argv[]) {
                         (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
-  // TEXTURE
-  unsigned int texture1;
-  RenderingEngine::prepare_cube_for_render(cube, &texture1);
+  // VAO/VBO TOPFACE
+  glGenVertexArrays(1, &VAO_topface);
+  glGenBuffers(1, &VBO_topface);
 
+  glBindVertexArray(VAO_topface);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_topface);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::TopFaceVertices),
+               Cube::TopFaceVertices, GL_STATIC_DRAW);
+
+  // position attribute
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                        (void *)nullptr);
+  glEnableVertexAttribArray(0);
+
+  // texture attribute
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                        (void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
+
+  unsigned int texture1, texture2;
+  // TEXTURE 1
+  // Check that object has required fields
+  spdlog::debug("Creating texture for side faces of cube");
+  glGenTextures(1, &texture1);
+  glBindTexture(GL_TEXTURE_2D, texture1);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  if (!cube->TextureWidth) {
+    spdlog::debug("Node {} does not have a texture width.", cube->Name);
+  } else if (!cube->TextureHeight) {
+    spdlog::debug("Node {} does not have a texture height.", cube->Name);
+  }
+  unsigned char *data = stbi_load("assets/textures/grass_block_side.png",
+                                  &width, &height, &nrChannels, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+               GL_UNSIGNED_BYTE, data);
+  glGenerateMipmap(GL_TEXTURE_2D);
   myShader.use();
-  glUniform1i(glGetUniformLocation(myShader.ID, "texture1"), 0);
+  myShader.setInt("texture1", 0);
+
+  // TEXTURE 2
+  spdlog::debug("Creating texture for top face of cube");
+  glGenTextures(1, &texture2);
+  glBindTexture(GL_TEXTURE_2D, texture2);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  if (!cube->TextureWidth) {
+    spdlog::debug("Node {} does not have a texture width.", cube->Name);
+  } else if (!cube->TextureHeight) {
+    spdlog::debug("Node {} does not have a texture height.", cube->Name);
+  }
+  data = stbi_load("assets/textures/grass_top.png", &width, &height,
+                   &nrChannels, 0);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+               GL_UNSIGNED_BYTE, data);
+  glGenerateMipmap(GL_TEXTURE_2D);
+  myShader.use();
 
   // initialize perlin noise
   PerlinNoise *perlin = new PerlinNoise();
@@ -199,8 +258,8 @@ int main(int argc, char *argv[]) {
     lastFrame = currentFrame;
     SDL_MouseMotionEvent mouseEvent;
 
+    // Find frames per second
     nbFrames++;
-
     if (currentFrame - (float)lastTime >= 1.0f) {
       frames_per_second = nbFrames;
       nbFrames = 0;
@@ -253,13 +312,17 @@ int main(int argc, char *argv[]) {
     glm::mat4 view = camera->GetViewMatrix();
     myShader.setMat4("view", view);
 
-    glBindVertexArray(VAO);
     for (unsigned int i = 0; i < cubePositions.size(); i++) {
-      glm::mat4 model = glm::mat4(1.0f);
-      model = glm::translate(model, cubePositions[i]);
+      glBindVertexArray(VAO);
+      glBindTexture(GL_TEXTURE_2D, texture1);
       float angle = 20.0f * i;
+      glm::mat4 model = glm::mat4(1.0f);
+      model = glm::rotate(glm::translate(model, cubePositions[i]),
+                          cube->LocalRotationRadians, cube->LocalRotationAxis);
       myShader.setMat4("model", model);
-
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+      glBindVertexArray(VAO_topface);
+      glBindTexture(GL_TEXTURE_2D, texture2);
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 

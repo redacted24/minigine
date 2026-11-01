@@ -9,7 +9,8 @@ public:
 
   // HACK: this feels like a hack.
   static int prepare_cube_for_render(Cube *p_object,
-                                     GLuint *p_processed_texture_loc);
+                                     GLuint *p_processed_texture_loc,
+                                     unsigned int *p_vao, unsigned int *p_vbo);
 };
 
 #endif // RENDERING_ENGINE_H
