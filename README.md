@@ -62,14 +62,19 @@ Clone the github repo somewhere.
 
 ```sh
 git clone https://github.com/redacted24/minigine.git &&
-cd minigine &&
-pre-commit install # Installs pre-commit hooks. Not needed if you are not planning on making changes to the program.
+cd minigine 
 ```
 
 Run the bash script to build and execute the program.
 
 ```sh
 ./run.sh
+```
+
+If you are making changes to the program and want to use my pre-commit hooks, install [pre-commit](https://github.com/pre-commit/pre-commit) and run in the project root:
+
+```sh
+pre-commit install
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
