@@ -25,12 +25,6 @@ Cube::Cube(std::string p_name, std::string p_texture_path,
 unsigned char *Cube::load_texture_data(std::string p_texture_path) {
   unsigned char *data = stbi_load(p_texture_path.c_str(), &TextureWidth,
                                   &TextureHeight, &NrChannels, 0);
-
-  if (!data) {
-    spdlog::error("Failed to load texture {}", p_texture_path);
-  } else {
-    spdlog::debug("Loaded texture {} for node {}", p_texture_path, Name);
-  }
   return data;
 }
 

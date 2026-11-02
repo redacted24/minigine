@@ -56,18 +56,11 @@ void new_perlin_seed(PerlinNoise *p_perlin,
 
   for (int i = 0; i < x_num; i++) {
     for (int j = 0; j < z_num; j++) {
-      if (noise_arr[i][j] > MAX_HEIGHT_CHUNK) {
-        spdlog::critical(
-            "noise array has value {} which is larger than {}, shutting down",
-            noise_arr[i][j], MAX_HEIGHT_CHUNK);
-        exit(1);
-      } else {
-        int k;
-        for (k = 0; k < noise_arr[i][j] - 1; k++) {
-          p_dirt_block_positions->push_back({(float)i, (float)k, (float)j});
-        }
-        p_grass_block_positions->push_back({(float)i, (float)k, (float)j});
+      int k;
+      for (k = 0; k < noise_arr[i][j] - 1; k++) {
+        p_dirt_block_positions->push_back({(float)i, (float)k, (float)j});
       }
+      p_grass_block_positions->push_back({(float)i, (float)k, (float)j});
     }
   }
 }
