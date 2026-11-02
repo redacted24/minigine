@@ -62,7 +62,7 @@ Clone the github repo somewhere.
 
 ```sh
 git clone https://github.com/redacted24/minigine.git &&
-cd minigine 
+cd minigine
 ```
 
 Run the bash script to build and execute the program.
