@@ -21,11 +21,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        submodules: recursive
     - name: Cache APT Packages
       uses: awalsh128/cache-apt-pkgs-action@v1.6.3
       with:
-        packages: build-essential python3-apt clang-tidy gh cmake libglm-dev ninja-build libgl-dev libx11-dev libxrandr-dev libxi-dev libspdlog1.15 libfreetype-dev
-        submodules: recursive
+        packages: build-essential python3-apt clang-tidy gh cmake libglm-dev ninja-build libgl-dev libx11-dev libxrandr-dev libxi-dev libfreetype-dev
 
     - uses: libsdl-org/setup-sdl@main
       id: sdl
