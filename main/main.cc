@@ -60,6 +60,7 @@ void new_perlin_seed(PerlinNoise *p_perlin,
         spdlog::critical(
             "noise array has value {} which is larger than {}, shutting down",
             noise_arr[i][j], MAX_HEIGHT_CHUNK);
+        exit(1);
       } else {
         int k;
         for (k = 0; k < noise_arr[i][j] - 1; k++) {
