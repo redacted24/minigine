@@ -2,7 +2,7 @@
 <!--
 *** Readme template from the Best-README-Template. https://github.com/othneildrew/Best-README-Template
 -->
-
+[![CMake on a single platform](https://github.com/redacted24/minigine/actions/workflows/cmake-single-platform.yml/badge.svg)](https://github.com/redacted24/minigine/actions/workflows/cmake-single-platform.yml)
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
@@ -46,28 +46,25 @@ I've wanted to learn graphics programming, how to use OpenGL, and how game engin
 ### Built With
 * C++
 * OpenGL
-* SDL3
-* glad
-* Freetype
 
 ### Prerequisites
 This project compiled and ran successfully on Linux 7.2.11-arch1-1.
-The following are libraries used by the program:
+The following are libraries used by the program and not vendored in this repository:
 
 * GL (opengl)
+* glm (opengl mathematics)
 * SDL3 (window and input management)
-* spdlog (logging)
 * Freetype (ttf)
 
-... and what your system may already have:
-
-* X11
-* pthread
-* Xrandr
-* Xi
-* dl
-
 ### Installation
+
+Clone the github repo somewhere.
+
+```sh
+git clone https://github.com/redacted24/minigine.git &&
+cd minigine &&
+pre-commit install # Installs pre-commit hooks. Not needed if you are not planning on making changes to the program.
+```
 
 Run the bash script to build and execute the program.
 
@@ -75,16 +72,17 @@ Run the bash script to build and execute the program.
 ./run.sh
 ```
 
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Examples
 
 ### Minecraft Chunk Generator with Perlin Noise
 
+Based on [Ken Perlin's noise implementation](https://people.csail.mit.edu/ericchan/bib/pdf/p681-perlin.pdf).
+Development in progress.
+
 https://github.com/user-attachments/assets/f34a74ea-332a-40e7-96f5-0315a7086f21
 
-In progress.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
