@@ -12,6 +12,7 @@
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_oldnames.h>
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
@@ -22,6 +23,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <random>
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
@@ -32,6 +34,42 @@ static SDL_Window *window = nullptr;
 static SDL_Renderer *renderer = nullptr;
 
 int success;
+
+void new_perlin_seed(PerlinNoise *p_perlin,
+                     std::vector<glm::vec3> *p_dirt_block_positions,
+                     std::vector<glm::vec3> *p_grass_block_positions,
+                     float p_seed = 1.0f) {
+  int x_num = 15;
+  int z_num = 15;
+  const int MAX_HEIGHT_CHUNK = 7;
+  float offset = 0.5f;
+
+  int noise_arr[x_num][z_num];
+  for (int i = 0; i < x_num; i++) {
+    for (int j = 0; j < z_num; j++) {
+      float perlin_noise = p_perlin->noise(i + p_seed, j + p_seed, p_seed);
+      perlin_noise = ((perlin_noise + 1.0f) / 2.0f) *
+                     (float)MAX_HEIGHT_CHUNK; // scale to [0, 5]
+      noise_arr[i][j] = perlin_noise;
+    }
+  }
+
+  for (int i = 0; i < x_num; i++) {
+    for (int j = 0; j < z_num; j++) {
+      if (noise_arr[i][j] > MAX_HEIGHT_CHUNK) {
+        spdlog::critical(
+            "noise array has value {} which is larger than {}, shutting down",
+            noise_arr[i][j], MAX_HEIGHT_CHUNK);
+      } else {
+        int k;
+        for (k = 0; k < noise_arr[i][j] - 1; k++) {
+          p_dirt_block_positions->push_back({(float)i, (float)k, (float)j});
+        }
+        p_grass_block_positions->push_back({(float)i, (float)k, (float)j});
+      }
+    }
+  }
+}
 
 int main(int argc, char *argv[]) {
   // ===============================================
@@ -222,44 +260,13 @@ int main(int argc, char *argv[]) {
   glGenerateMipmap(GL_TEXTURE_2D);
   myShader.use();
 
+  Camera *camera = new Camera(glm::vec3(0.0f, 5.0f, 10.0f));
+
   // initialize perlin noise
   PerlinNoise *perlin = new PerlinNoise();
-
-  Camera *camera = new Camera(glm::vec3(0.0f, 5.0f, 10.0f));
-  int x_num = 15;
-  int z_num = 15;
-  const int MAX_HEIGHT_CHUNK = 7;
-  float offset = 0.5f;
-
   std::vector<glm::vec3> grassBlockPositions;
   std::vector<glm::vec3> dirtBlockPositions;
-
-  int noise_arr[x_num][z_num];
-  for (int i = 0; i < x_num; i++) {
-    for (int j = 0; j < z_num; j++) {
-      float perlin_noise = perlin->noise(i + offset, j + offset, 0.0f + offset);
-      perlin_noise = ((perlin_noise + 1.0f) / 2.0f) *
-                     (float)MAX_HEIGHT_CHUNK; // scale to [0, 5]
-      noise_arr[i][j] = perlin_noise;
-    }
-  }
-
-  for (int i = 0; i < x_num; i++) {
-    for (int j = 0; j < z_num; j++) {
-      if (noise_arr[i][j] > MAX_HEIGHT_CHUNK) {
-        spdlog::critical(
-            "noise array has value {} which is larger than {}, shutting down",
-            noise_arr[i][j], MAX_HEIGHT_CHUNK);
-        return 1;
-      } else {
-        int k;
-        for (k = 0; k < noise_arr[i][j] - 1; k++) {
-          dirtBlockPositions.push_back({(float)i, (float)k, (float)j});
-        }
-        grassBlockPositions.push_back({(float)i, (float)k, (float)j});
-      }
-    }
-  }
+  new_perlin_seed(perlin, &dirtBlockPositions, &grassBlockPositions, 0.5f);
 
   TextRenderer textRenderer;
   textRenderer.initialize_shaders("assets/shaders/text.vs.glsl",
@@ -292,6 +299,11 @@ int main(int argc, char *argv[]) {
 
   int frames_per_second = 0;
 
+  // randomness
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<float> distrib(0.2, 0.8);
+
   while (running) {
     float currentFrame = static_cast<float>(SDL_GetTicks() / 1000.0f);
     deltaTime = currentFrame - lastFrame;
@@ -322,6 +334,15 @@ int main(int argc, char *argv[]) {
       } else if (e.type == SDL_EVENT_MOUSE_MOTION) {
         mouseEvent = e.motion;
         camera->ProcessMouseMovement(mouseEvent.xrel, -mouseEvent.yrel);
+      } else if (e.type == SDL_EVENT_KEY_DOWN) {
+        if (e.key.key == SDLK_C) {
+          dirtBlockPositions.clear();
+          grassBlockPositions.clear();
+          float seed = distrib(gen);
+          new_perlin_seed(perlin, &dirtBlockPositions, &grassBlockPositions,
+                          seed);
+          spdlog::debug("Change perlin noise seed to {:.4f}", seed);
+        }
       }
     }
 
