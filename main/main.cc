@@ -102,8 +102,8 @@ int main(int argc, char *argv[]) {
   Cube *cube = new Cube("Grass cube", "assets/textures/grass_block_side.png",
                         "assets/textures/grass_top.png");
 
-  unsigned int VAO, VBO;
-  unsigned int VAO_topface, VBO_topface;
+  unsigned int VAO, VBO, VAO_topface, VBO_topface, VAO_dirtblock, VBO_dirtblock;
+  unsigned int texture1, texture2, texture3;
 
   // VAO/VBO SIDES
   glGenVertexArrays(1, &VAO);
@@ -142,7 +142,6 @@ int main(int argc, char *argv[]) {
                         (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
 
-  unsigned int texture1, texture2;
   // TEXTURE 1
   // Check that object has required fields
   spdlog::debug("Creating texture for side faces of cube");
@@ -187,19 +186,58 @@ int main(int argc, char *argv[]) {
   glGenerateMipmap(GL_TEXTURE_2D);
   myShader.use();
 
+  // VAO/VBO dirt block
+  glGenVertexArrays(1, &VAO_dirtblock);
+  glGenBuffers(1, &VBO_dirtblock);
+
+  glBindVertexArray(VAO_dirtblock);
+  glBindBuffer(GL_ARRAY_BUFFER, VBO_dirtblock);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::FullBlockVertices),
+               Cube::FullBlockVertices, GL_STATIC_DRAW);
+
+  // position attribute
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                        (void *)nullptr);
+  glEnableVertexAttribArray(0);
+  // texture attribute
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                        (void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
+
+  // TEXTURE 3
+  spdlog::debug("Creating texture for dirt block");
+  glGenTextures(1, &texture3);
+  glBindTexture(GL_TEXTURE_2D, texture3);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  data = stbi_load("assets/textures/dirt.png", &width, &height, &nrChannels, 0);
+  if (!data) {
+    spdlog::error("Failed loading dirt texture.");
+  }
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
+               GL_UNSIGNED_BYTE, data);
+  glGenerateMipmap(GL_TEXTURE_2D);
+  myShader.use();
+
   // initialize perlin noise
   PerlinNoise *perlin = new PerlinNoise();
 
   Camera *camera = new Camera(glm::vec3(0.0f, 5.0f, 10.0f));
-  int x_num = 10;
-  int z_num = 10;
-  const int MAX_HEIGHT_CHUNK = 5;
+  int x_num = 15;
+  int z_num = 15;
+  const int MAX_HEIGHT_CHUNK = 7;
+  float offset = 0.5f;
 
-  std::vector<glm::vec3> cubePositions;
+  std::vector<glm::vec3> grassBlockPositions;
+  std::vector<glm::vec3> dirtBlockPositions;
+
   int noise_arr[x_num][z_num];
   for (int i = 0; i < x_num; i++) {
     for (int j = 0; j < z_num; j++) {
-      float perlin_noise = perlin->noise(i + 0.5f, j + 0.5f, 0.0f + 0.5f);
+      float perlin_noise = perlin->noise(i + offset, j + offset, 0.0f + offset);
       perlin_noise = ((perlin_noise + 1.0f) / 2.0f) *
                      (float)MAX_HEIGHT_CHUNK; // scale to [0, 5]
       noise_arr[i][j] = perlin_noise;
@@ -214,9 +252,11 @@ int main(int argc, char *argv[]) {
             noise_arr[i][j], MAX_HEIGHT_CHUNK);
         return 1;
       } else {
-        for (int k = 0; k < noise_arr[i][j]; k++) {
-          cubePositions.push_back({(float)i, (float)k, (float)j});
+        int k;
+        for (k = 0; k < noise_arr[i][j] - 1; k++) {
+          dirtBlockPositions.push_back({(float)i, (float)k, (float)j});
         }
+        grassBlockPositions.push_back({(float)i, (float)k, (float)j});
       }
     }
   }
@@ -312,17 +352,27 @@ int main(int argc, char *argv[]) {
     glm::mat4 view = camera->GetViewMatrix();
     myShader.setMat4("view", view);
 
-    for (unsigned int i = 0; i < cubePositions.size(); i++) {
+    for (unsigned int i = 0; i < grassBlockPositions.size(); i++) {
       glBindVertexArray(VAO);
       glBindTexture(GL_TEXTURE_2D, texture1);
       float angle = 20.0f * i;
       glm::mat4 model = glm::mat4(1.0f);
-      model = glm::rotate(glm::translate(model, cubePositions[i]),
+      model = glm::rotate(glm::translate(model, grassBlockPositions[i]),
                           cube->LocalRotationRadians, cube->LocalRotationAxis);
       myShader.setMat4("model", model);
       glDrawArrays(GL_TRIANGLES, 0, 36);
+
       glBindVertexArray(VAO_topface);
       glBindTexture(GL_TEXTURE_2D, texture2);
+      glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+
+    for (unsigned int i = 0; i < dirtBlockPositions.size(); i++) {
+      glBindVertexArray(VAO_dirtblock);
+      glBindTexture(GL_TEXTURE_2D, texture3);
+      glm::mat4 model = glm::mat4(1.0f);
+      model = glm::translate(model, dirtBlockPositions[i]);
+      myShader.setMat4("model", model);
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
@@ -333,12 +383,12 @@ int main(int argc, char *argv[]) {
         camera->Front.x, camera->Front.y, camera->Front.z, camera->Position.x,
         camera->Position.y, camera->Position.z);
     textRenderer.RenderText(camera_lookat_debug, 5.0f,
-                            static_cast<float>(WINDOW_HEIGHT) - 30.0f, 0.5f,
+                            static_cast<float>(WINDOW_HEIGHT) - 30.0f, 0.4f,
                             glm::vec3(0.0f, 0.0f, 0.0f));
 
     camera_lookat_debug = std::format("{:d}fps", frames_per_second);
     textRenderer.RenderText(camera_lookat_debug, 5.0f,
-                            static_cast<float>(WINDOW_HEIGHT) - 55.0f, 0.5f,
+                            static_cast<float>(WINDOW_HEIGHT) - 55.0f, 0.4f,
                             glm::vec3(0));
     glDisable(GL_CULL_FACE);
 
