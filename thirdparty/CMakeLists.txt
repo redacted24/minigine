@@ -6,6 +6,12 @@ find_package(Freetype REQUIRED)
 set(SPDLOG_USE_EXTERNAL_FMT OFF)
 add_subdirectory(spdlog)
 
+# Disable clang-tidy for spdlog
+set_target_properties(spdlog PROPERTIES
+    CXX_CLANG_TIDY ""
+    C_CLANG_TIDY ""
+)
+
 add_library(thirdparty)
 target_include_directories(thirdparty
     PUBLIC

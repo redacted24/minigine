@@ -6,6 +6,7 @@ project(minigine)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_CLANG_TIDY "clang-tidy"; "--warnings-as-errors=*")
 set(CMAKE_DEBUG_POSTFIX "_debug")
 
 # Google Test
@@ -16,10 +17,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy"; "--warnings-as-errors=*")
+add_subdirectory(thirdparty)
 add_subdirectory(core)
 add_subdirectory(drivers)
 add_subdirectory(tests)
 add_subdirectory(main)
-set(CMAKE_CXX_CLANG_TIDY "")
-add_subdirectory(thirdparty)
