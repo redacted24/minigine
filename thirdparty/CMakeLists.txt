@@ -1,8 +1,10 @@
 # thirdparty cmake
 find_package(SDL3 REQUIRED)
-find_package(spdlog REQUIRED)
 find_package(glm REQUIRED)
 find_package(Freetype REQUIRED)
+
+set(SPDLOG_USE_EXTERNAL_FMT OFF)
+add_subdirectory(spdlog)
 
 add_library(thirdparty)
 target_include_directories(thirdparty
