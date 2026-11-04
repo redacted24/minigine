@@ -8,6 +8,7 @@ target_sources(core
         cube.cc
         perlin_noise.cc
         text.cc
+        texture.cc
     PUBLIC
         FILE_SET HEADERS
         BASE_DIRS
@@ -19,6 +20,7 @@ target_sources(core
             cube.h
             perlin_noise.h
             text.h
+            texture.h
 )
 target_link_libraries(core
     PUBLIC
