@@ -16,7 +16,7 @@ else
     case $1 in
     test)
         cmake --build build/debug --verbose
-        cd build/debug/tests && ctest
+        cd build/debug/tests && ctest --output-on-failure
         ;;
 
     clean)

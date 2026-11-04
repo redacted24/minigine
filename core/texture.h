@@ -12,10 +12,14 @@ public:
   int Width;
   int Height;
   int NrChannels;
+  float AtlasCellSize = 16.0f;
 
   unsigned int GlTexture;
 
+  Texture();
   Texture(std::filesystem::path p_texture_path);
+  std::array<glm::vec2, 4> get_pixel_coords(int p_x, int p_y);
+  std::array<glm::vec2, 4> get_uv_coords(int p_x, int p_y);
   int load_texture();
 };
 
