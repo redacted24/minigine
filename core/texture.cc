@@ -2,6 +2,7 @@
 #include "glad/glad.h"
 #include "spdlog/spdlog.h"
 #include "stb_image/stb_image.h"
+#include <cassert>
 #include <filesystem>
 
 /**
@@ -22,7 +23,6 @@ Texture::Texture(std::filesystem::path p_texture_path) {
 
 std::array<glm::vec2, 4> Texture::get_pixel_coords(int p_x, int p_y) {
   std::array<glm::vec2, 4> arr{};
-  float real_cell_size = AtlasCellSize - 1;
   arr[0] = glm::vec2(p_x * AtlasCellSize, p_y * AtlasCellSize); // Bottom Left
   arr[1] = glm::vec2((AtlasCellSize - 1) + p_x * AtlasCellSize,
                      p_y * AtlasCellSize); // Bottom Right
@@ -31,6 +31,18 @@ std::array<glm::vec2, 4> Texture::get_pixel_coords(int p_x, int p_y) {
   arr[3] = glm::vec2(p_x * AtlasCellSize,
                      (AtlasCellSize - 1) + p_y * AtlasCellSize); // Top Left
   return arr;
+}
+
+// OPTIMIZE: performance if needed to pass array by ref
+std::array<glm::vec2, 4>
+Texture::get_uv_coords(std::array<glm::vec2, 4> p_arr) {
+  assert(Width != 0.0f);
+  assert(Height != 0.0f);
+  for (int i = 0; i < 4; i++) {
+    p_arr[i].x /= static_cast<float>(Width);
+    p_arr[i].y /= static_cast<float>(Height);
+  }
+  return p_arr;
 }
 
 int Texture::load_texture() {

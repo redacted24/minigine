@@ -2,6 +2,7 @@
 #define TEXTURE_H
 
 #include <filesystem>
+#include <glm/ext/vector_double2.hpp>
 #include <glm/ext/vector_float2.hpp>
 #include <string>
 
@@ -19,7 +20,7 @@ public:
   Texture();
   Texture(std::filesystem::path p_texture_path);
   std::array<glm::vec2, 4> get_pixel_coords(int p_x, int p_y);
-  std::array<glm::vec2, 4> get_uv_coords(int p_x, int p_y);
+  std::array<glm::vec2, 4> get_uv_coords(std::array<glm::vec2, 4> p_arr);
   int load_texture();
 };
 
