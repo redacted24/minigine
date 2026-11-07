@@ -48,7 +48,8 @@ void new_perlin_seed(PerlinNoise *p_perlin,
   int noise_arr[x_num][z_num];
   for (int i = 0; i < x_num; i++) {
     for (int j = 0; j < z_num; j++) {
-      float perlin_noise = p_perlin->noise(i + p_seed, j + p_seed, p_seed);
+      float perlin_noise =
+          p_perlin->noise(i / 2 + p_seed, j / 2 + p_seed, p_seed);
       perlin_noise = ((perlin_noise + 1.0f) / 2.0f) *
                      (float)MAX_HEIGHT_CHUNK; // scale to [0, 5]
       noise_arr[i][j] = perlin_noise;
@@ -135,13 +136,14 @@ int main(int argc, char *argv[]) {
   // Creation of vertex shader
   Shader myShader("assets/shaders/main.vs.glsl", "assets/shaders/main.fs.glsl");
 
-  Cube dirt = Cube(glm::vec2(27, 57), glm::vec2(8, 50), glm::vec2(21, 51),
-                   glm::vec2(21, 51), glm::vec2(21, 51), glm::vec2(21, 51),
-                   &block_atlas);
-  Cube grass_block = Cube(glm::vec2(23, 50), glm::vec2(8, 50),
+  Cube grass_block = Cube(glm::vec2(27, 57), glm::vec2(8, 50),
                           glm::vec2(21, 51), glm::vec2(21, 51),
                           glm::vec2(21, 51), glm::vec2(21, 51), &block_atlas);
-  dirt.render_setup();
+  Cube dirt_block =
+      Cube(glm::vec2(8, 50), glm::vec2(8, 50), glm::vec2(8, 50),
+           glm::vec2(8, 50), glm::vec2(8, 50), glm::vec2(8, 50), &block_atlas);
+  grass_block.render_setup();
+  dirt_block.render_setup();
   myShader.use();
   Camera *camera = new Camera(glm::vec3(0.0f, 5.0f, 10.0f));
 
@@ -258,21 +260,17 @@ int main(int argc, char *argv[]) {
     myShader.setMat4("view", view);
 
     for (unsigned int i = 0; i < grassBlockPositions.size(); i++) {
-      glBindVertexArray(dirt.VAO);
+      glBindVertexArray(grass_block.VAO);
       glBindTexture(GL_TEXTURE_2D, block_atlas.GlTextureData);
       float angle = 20.0f * i;
       glm::mat4 model = glm::mat4(1.0f);
       model = glm::translate(model, grassBlockPositions[i]);
       myShader.setMat4("model", model);
       glDrawArrays(GL_TRIANGLES, 0, 36);
-
-      // glBindVertexArray(VAO_topface);
-      // glBindTexture(GL_TEXTURE_2D, texture2);
-      // glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
     for (unsigned int i = 0; i < dirtBlockPositions.size(); i++) {
-      glBindVertexArray(dirt.VAO);
+      glBindVertexArray(dirt_block.VAO);
       glBindTexture(GL_TEXTURE_2D, block_atlas.GlTextureData);
       glm::mat4 model = glm::mat4(1.0f);
       model = glm::translate(model, dirtBlockPositions[i]);
