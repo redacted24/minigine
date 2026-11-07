@@ -24,6 +24,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <random>
+
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
@@ -39,8 +40,8 @@ void new_perlin_seed(PerlinNoise *p_perlin,
                      std::vector<glm::vec3> *p_dirt_block_positions,
                      std::vector<glm::vec3> *p_grass_block_positions,
                      float p_seed = 1.0f) {
-  int x_num = 15;
-  int z_num = 15;
+  int x_num = 16;
+  int z_num = 16;
   const int MAX_HEIGHT_CHUNK = 7;
   float offset = 0.5f;
 
@@ -74,10 +75,11 @@ int main(int argc, char *argv[]) {
 
   // https://github.com/gabime/spdlog/wiki/Custom-formatting
   // spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
+  spdlog::set_pattern("[%H:%M:%S] [%^%l%$] [%s:%#] %v");
   spdlog::set_level(spdlog::level::debug);
-  spdlog::info("Start of program");
+  SPDLOG_INFO("Start of program");
   if (SDL_Init(SDL_INIT_VIDEO) == false) {
-    spdlog::critical("SDL could not initialize. SDL error: {}", SDL_GetError());
+    SPDLOG_CRITICAL("SDL could not initialize. SDL error: {}", SDL_GetError());
     return -1;
   };
 
@@ -85,23 +87,23 @@ int main(int argc, char *argv[]) {
   if (!SDL_CreateWindowAndRenderer("SDL3 Tutorial", WINDOW_WIDTH, WINDOW_HEIGHT,
                                    (SDL_WINDOW_MINIMIZED), &window,
                                    &renderer)) {
-    spdlog::critical("Couldn't create window/renderer: {}", SDL_GetError());
+    SPDLOG_CRITICAL("Couldn't create window/renderer: {}", SDL_GetError());
     return -1;
   }
-  spdlog::info("Initialized SDL window width {}px and window height {}px",
-               WINDOW_WIDTH, WINDOW_HEIGHT);
+  SPDLOG_INFO("Initialized SDL window width {}px and window height {}px",
+              WINDOW_WIDTH, WINDOW_HEIGHT);
 
   // Set OpenGL attributes
   unsigned int sdl_version = 3;
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, sdl_version);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, sdl_version);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-  spdlog::info("Initialized SDL with version {}", sdl_version);
+  SPDLOG_INFO("Initialized SDL with version {}", sdl_version);
 
   // Context
   SDL_GLContext gl_context = SDL_GL_CreateContext(window);
   if (!gl_context) {
-    spdlog::critical("Could not create opengl context, shutting down program");
+    SPDLOG_CRITICAL("Could not create opengl context, shutting down program");
     SDL_DestroyWindow(window);
     SDL_Quit();
     return -1;
@@ -120,140 +122,24 @@ int main(int argc, char *argv[]) {
   //
   // ===============================================
 
+  Texture block_atlas = Texture("assets/textures/block_atlas.png");
+  block_atlas.load_texture();
+
   int width, height, nrChannels;
 
   glEnable(GL_BLEND);
-  spdlog::debug("Enabling GL_BLEND");
   glEnable(GL_DEPTH_TEST);
-  spdlog::debug("Enabling GL_DEPTH_TEST");
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  SPDLOG_DEBUG("Enabled GL_DEPTH_TEST and GL_BLEND");
 
   // Creation of vertex shader
   Shader myShader("assets/shaders/main.vs.glsl", "assets/shaders/main.fs.glsl");
 
-  Cube *cube = new Cube("Grass cube", "assets/textures/grass_block_side.png",
-                        "assets/textures/grass_top.png");
-
-  unsigned int VAO, VBO, VAO_topface, VBO_topface, VAO_dirtblock, VBO_dirtblock;
-  unsigned int texture1, texture2, texture3;
-
-  // VAO/VBO SIDES
-  glGenVertexArrays(1, &VAO);
-  glGenBuffers(1, &VBO);
-
-  glBindVertexArray(VAO);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::Vertices), Cube::Vertices,
-               GL_STATIC_DRAW);
-
-  // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void *)nullptr);
-  glEnableVertexAttribArray(0);
-  // texture attribute
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void *)(3 * sizeof(float)));
-  glEnableVertexAttribArray(1);
-
-  // VAO/VBO TOPFACE
-  glGenVertexArrays(1, &VAO_topface);
-  glGenBuffers(1, &VBO_topface);
-
-  glBindVertexArray(VAO_topface);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO_topface);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::TopFaceVertices),
-               Cube::TopFaceVertices, GL_STATIC_DRAW);
-
-  // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void *)nullptr);
-  glEnableVertexAttribArray(0);
-
-  // texture attribute
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void *)(3 * sizeof(float)));
-  glEnableVertexAttribArray(1);
-
-  // TEXTURE 1
-  // Check that object has required fields
-  spdlog::debug("Creating texture for side faces of cube");
-  glGenTextures(1, &texture1);
-  glBindTexture(GL_TEXTURE_2D, texture1);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-  if (!cube->TextureWidth) {
-    spdlog::debug("Node {} does not have a texture width.", cube->Name);
-  } else if (!cube->TextureHeight) {
-    spdlog::debug("Node {} does not have a texture height.", cube->Name);
-  }
-  unsigned char *data = stbi_load("assets/textures/grass_block_side.png",
-                                  &width, &height, &nrChannels, 0);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-               GL_UNSIGNED_BYTE, data);
-  glGenerateMipmap(GL_TEXTURE_2D);
+  Cube dirt =
+      Cube(glm::vec2(8, 50), glm::vec2(8, 50), glm::vec2(8, 50),
+           glm::vec2(8, 50), glm::vec2(8, 50), glm::vec2(8, 50), &block_atlas);
+  dirt.render_setup();
   myShader.use();
-  myShader.setInt("texture1", 0);
-
-  // TEXTURE 2
-  spdlog::debug("Creating texture for top face of cube");
-  glGenTextures(1, &texture2);
-  glBindTexture(GL_TEXTURE_2D, texture2);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-  if (!cube->TextureWidth) {
-    spdlog::debug("Node {} does not have a texture width.", cube->Name);
-  } else if (!cube->TextureHeight) {
-    spdlog::debug("Node {} does not have a texture height.", cube->Name);
-  }
-  data = stbi_load("assets/textures/grass_top.png", &width, &height,
-                   &nrChannels, 0);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-               GL_UNSIGNED_BYTE, data);
-  glGenerateMipmap(GL_TEXTURE_2D);
-  myShader.use();
-
-  // VAO/VBO dirt block
-  glGenVertexArrays(1, &VAO_dirtblock);
-  glGenBuffers(1, &VBO_dirtblock);
-
-  glBindVertexArray(VAO_dirtblock);
-  glBindBuffer(GL_ARRAY_BUFFER, VBO_dirtblock);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(Cube::FullBlockVertices),
-               Cube::FullBlockVertices, GL_STATIC_DRAW);
-
-  // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void *)nullptr);
-  glEnableVertexAttribArray(0);
-  // texture attribute
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
-                        (void *)(3 * sizeof(float)));
-  glEnableVertexAttribArray(1);
-
-  // TEXTURE 3
-  spdlog::debug("Creating texture for dirt block");
-  glGenTextures(1, &texture3);
-  glBindTexture(GL_TEXTURE_2D, texture3);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-  data = stbi_load("assets/textures/dirt.png", &width, &height, &nrChannels, 0);
-  if (!data) {
-    spdlog::error("Failed loading dirt texture.");
-  }
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-               GL_UNSIGNED_BYTE, data);
-  glGenerateMipmap(GL_TEXTURE_2D);
-  myShader.use();
-
   Camera *camera = new Camera(glm::vec3(0.0f, 5.0f, 10.0f));
 
   // initialize perlin noise
@@ -273,13 +159,13 @@ int main(int argc, char *argv[]) {
   glUniformMatrix4fv(
       glGetUniformLocation(textRenderer.TextShader.ID, "projection"), 1,
       GL_FALSE, glm::value_ptr(projection));
-
   // ===============================================
   //
   //								Main loop start
   //
   // ===============================================
-  spdlog::info("Entering main loop");
+
+  SPDLOG_INFO("Entering main loop");
   bool running = true;
 
   // variables for deltaTime calculation and mouse position
@@ -317,6 +203,7 @@ int main(int argc, char *argv[]) {
     //								Event loop
     //
     // ===============================================
+
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
       if (e.type == SDL_EVENT_QUIT) {
@@ -335,7 +222,7 @@ int main(int argc, char *argv[]) {
           float seed = distrib(gen);
           new_perlin_seed(perlin, &dirtBlockPositions, &grassBlockPositions,
                           seed);
-          spdlog::debug("Change perlin noise seed to {:.4f}", seed);
+          SPDLOG_DEBUG("Change perlin noise seed to {:.4f}", seed);
         }
       }
     }
@@ -352,7 +239,7 @@ int main(int argc, char *argv[]) {
 
     // bind texture
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture1);
+    glBindTexture(GL_TEXTURE_2D, block_atlas.GlTextureData);
 
     // activate shader
     myShader.use();
@@ -368,23 +255,22 @@ int main(int argc, char *argv[]) {
     myShader.setMat4("view", view);
 
     for (unsigned int i = 0; i < grassBlockPositions.size(); i++) {
-      glBindVertexArray(VAO);
-      glBindTexture(GL_TEXTURE_2D, texture1);
+      glBindVertexArray(dirt.VAO);
+      glBindTexture(GL_TEXTURE_2D, block_atlas.GlTextureData);
       float angle = 20.0f * i;
       glm::mat4 model = glm::mat4(1.0f);
-      model = glm::rotate(glm::translate(model, grassBlockPositions[i]),
-                          cube->LocalRotationRadians, cube->LocalRotationAxis);
+      model = glm::translate(model, grassBlockPositions[i]);
       myShader.setMat4("model", model);
       glDrawArrays(GL_TRIANGLES, 0, 36);
 
-      glBindVertexArray(VAO_topface);
-      glBindTexture(GL_TEXTURE_2D, texture2);
-      glDrawArrays(GL_TRIANGLES, 0, 36);
+      // glBindVertexArray(VAO_topface);
+      // glBindTexture(GL_TEXTURE_2D, texture2);
+      // glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
     for (unsigned int i = 0; i < dirtBlockPositions.size(); i++) {
-      glBindVertexArray(VAO_dirtblock);
-      glBindTexture(GL_TEXTURE_2D, texture3);
+      glBindVertexArray(dirt.VAO);
+      glBindTexture(GL_TEXTURE_2D, block_atlas.GlTextureData);
       glm::mat4 model = glm::mat4(1.0f);
       model = glm::translate(model, dirtBlockPositions[i]);
       myShader.setMat4("model", model);
@@ -409,8 +295,6 @@ int main(int argc, char *argv[]) {
 
     SDL_GL_SwapWindow(window);
   }
-  glDeleteVertexArrays(1, &VAO);
-  glDeleteBuffers(1, &VBO);
-  spdlog::info("Program exit");
+  SPDLOG_INFO("Program exit");
   return 0;
 }

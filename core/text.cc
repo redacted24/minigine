@@ -6,7 +6,7 @@
 #include FT_FREETYPE_H
 
 TextRenderer::TextRenderer() {
-  spdlog::warn("Initialized text renderer without a fragment/vertex shader.");
+  SPDLOG_WARN("Initialized text renderer without a fragment/vertex shader.");
 };
 
 int TextRenderer::initialize_shaders(const char *p_vertex_path,
@@ -18,19 +18,19 @@ int TextRenderer::initialize_shaders(const char *p_vertex_path,
 int TextRenderer::initialize_font(std::string p_font_path) {
   FT_Library ft;
   if (FT_Init_FreeType(&ft)) {
-    spdlog::error("Could not initialize Freetype library.");
+    SPDLOG_ERROR("Could not initialize Freetype library.");
     return -1;
   } else {
-    spdlog::info("Initialized Freetype library");
+    SPDLOG_INFO("Initialized Freetype library");
   }
 
   FT_Face face;
   std::string font = "assets/fonts/arial.ttf";
   if (FT_New_Face(ft, font.c_str(), 0, &face)) {
-    spdlog::error("Could not load font {}", font);
+    SPDLOG_ERROR("Could not load font {}", font);
     return -1;
   } else {
-    spdlog::debug("Loaded font {}", font);
+    SPDLOG_DEBUG("Loaded font {}", font);
   }
 
   FT_Set_Pixel_Sizes(face, 0, 48);
@@ -40,7 +40,7 @@ int TextRenderer::initialize_font(std::string p_font_path) {
   for (unsigned char c = 0; c < 128; c++) {
     // load character glyph
     if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-      spdlog::error("Freetype: failed to load glyph {}", c);
+      SPDLOG_ERROR("Freetype: failed to load glyph {}", c);
       continue;
     }
 
@@ -68,7 +68,7 @@ int TextRenderer::initialize_font(std::string p_font_path) {
   }
   glBindTexture(GL_TEXTURE_2D, 0);
 
-  spdlog::debug("Freetype: loaded 128 glyphs");
+  SPDLOG_DEBUG("Freetype: loaded 128 glyphs");
 
   FT_Done_Face(face);
   FT_Done_FreeType(ft);

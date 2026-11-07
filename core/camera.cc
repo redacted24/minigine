@@ -1,9 +1,9 @@
+#include "spdlog/spdlog.h"
 #include <SDL3/SDL.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <spdlog/spdlog.h>
 
 #include "camera.h"
 #include "stb_image/stb_image.h"
@@ -16,7 +16,7 @@ Camera::Camera(glm::vec3 p_position, glm::vec3 p_up, float p_yaw, float p_pitch)
   Yaw = p_yaw;
   Pitch = p_pitch;
   updateCameraVectors();
-  spdlog::debug(
+  SPDLOG_DEBUG(
       "Initialized camera through vectors with position ({}, {}, {}). ",
       p_position.x, p_position.y, p_position.z);
 }
@@ -30,7 +30,7 @@ Camera::Camera(float p_pos_x, float p_pos_y, float p_pos_z, float p_up_x,
   Yaw = p_yaw;
   Pitch = p_pitch;
   updateCameraVectors();
-  spdlog::debug(
+  SPDLOG_DEBUG(
       "Initialized camera through floats with position x:{}, y:{}, z:{}",
       p_pos_x, p_pos_y, p_pos_z);
 }
