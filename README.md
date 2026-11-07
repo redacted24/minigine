@@ -32,6 +32,7 @@
     </li>
     <li><a href="#license">License</a></li>
     <li><a href="#examples">Examples</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
@@ -88,6 +89,12 @@ Development in progress.
 
 https://github.com/user-attachments/assets/f34a74ea-332a-40e7-96f5-0315a7086f21
 
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Roadmap
+- [ ] Lighting
+- [ ] Model Loading
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
