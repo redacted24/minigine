@@ -8,7 +8,8 @@
  */
 class Renderable {
 public:
-  virtual int render() = 0;
+  virtual void render() = 0;
+  virtual int render_setup() = 0;
 };
 
 #endif // RENDERABLE_H

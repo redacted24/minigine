@@ -15,7 +15,7 @@ public:
   int NrChannels;
   float AtlasCellSize = 16.0f;
 
-  unsigned int GlTexture;
+  unsigned int GlTextureData;
 
   Texture();
   Texture(std::filesystem::path p_texture_path);

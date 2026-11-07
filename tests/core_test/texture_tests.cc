@@ -52,5 +52,4 @@ TEST_F(TextureClassTest, uvCoordsCorrect) {
       glm::vec2(0.0f, 15.0f / 2048.0f)};
 
   ASSERT_EQ(texture.get_uv_coords(arr), exp_output);
-  // ASSERT_EQ(15.0f / 2048.0f, 15.0f / 2048.0f);
 }

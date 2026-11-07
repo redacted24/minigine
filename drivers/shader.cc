@@ -8,8 +8,8 @@
 Shader::Shader() {};
 
 Shader::Shader(const char *p_vertex_path, const char *p_fragment_path) {
-  spdlog::debug("Initializing vertex shader {} and fragment shader {}",
-                p_vertex_path, p_fragment_path);
+  SPDLOG_DEBUG("Initializing vertex shader {} and fragment shader {}",
+               p_vertex_path, p_fragment_path);
   std::string vertexCode;
   std::string fragmentCode;
   std::ifstream vShaderFile;
@@ -30,8 +30,7 @@ Shader::Shader(const char *p_vertex_path, const char *p_fragment_path) {
   }
 
   catch (std::ifstream::failure e) {
-    spdlog::error("Vertex shader file {} not successfully read.",
-                  p_vertex_path);
+    SPDLOG_ERROR("Vertex shader file {} not successfully read.", p_vertex_path);
   }
 
   try {
@@ -43,11 +42,11 @@ Shader::Shader(const char *p_vertex_path, const char *p_fragment_path) {
   }
 
   catch (std::ifstream::failure e) {
-    spdlog::error("Fragment shader file {} not successfully read.",
-                  p_fragment_path);
+    SPDLOG_ERROR("Fragment shader file {} not successfully read.",
+                 p_fragment_path);
   }
 
-  spdlog::debug("Read vs {} and fs {}", p_vertex_path, p_fragment_path);
+  SPDLOG_DEBUG("Read vs {} and fs {}", p_vertex_path, p_fragment_path);
   const char *vShaderCode = vertexCode.c_str();
   const char *fShaderCode = fragmentCode.c_str();
 
@@ -62,14 +61,14 @@ Shader::Shader(const char *p_vertex_path, const char *p_fragment_path) {
   glCompileShader(vertex);
   // print compile errors if any
   checkCompileErrors(vertex, "VERTEX");
-  spdlog::debug("vertex shader {} compiled", p_vertex_path);
+  SPDLOG_DEBUG("vertex shader {} compiled", p_vertex_path);
 
   // fragment shader
   fragment = glCreateShader(GL_FRAGMENT_SHADER);
   glShaderSource(fragment, 1, &fShaderCode, nullptr);
   glCompileShader(fragment);
   checkCompileErrors(fragment, "FRAGMENT");
-  spdlog::debug("fragment shader {} compiled", p_fragment_path);
+  SPDLOG_DEBUG("fragment shader {} compiled", p_fragment_path);
 
   // shaderProgram
   ID = glCreateProgram();
@@ -78,10 +77,12 @@ Shader::Shader(const char *p_vertex_path, const char *p_fragment_path) {
   glLinkProgram(ID);
   glGetProgramiv(ID, GL_LINK_STATUS, &success);
   checkCompileErrors(ID, "PROGRAM");
-  spdlog::debug("shader program (ID:3) created", ID);
+  SPDLOG_DEBUG("shader program (ID:3) created", ID);
 
   glDeleteShader(vertex);
   glDeleteShader(fragment);
+
+  SPDLOG_DEBUG("Shader successfully compiled");
 }
 
 void Shader::use() { glUseProgram(ID); }
@@ -149,13 +150,13 @@ void Shader::checkCompileErrors(unsigned int p_shader, std::string p_type) {
     glGetShaderiv(p_shader, GL_COMPILE_STATUS, &success);
     if (!success) {
       glGetShaderInfoLog(p_shader, 1024, nullptr, infoLog);
-      spdlog::error("Shader compilation error of type {}. {}", p_type, infoLog);
+      SPDLOG_ERROR("Shader compilation error of type {}. {}", p_type, infoLog);
     }
   } else {
     glGetProgramiv(p_shader, GL_LINK_STATUS, &success);
     if (!success) {
       glGetProgramInfoLog(p_shader, 1024, nullptr, infoLog);
-      spdlog::error("Shader linking error of type {}. {}", p_type, infoLog);
+      SPDLOG_ERROR("Shader linking error of type {}. {}", p_type, infoLog);
     }
   }
 }

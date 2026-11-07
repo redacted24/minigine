@@ -9,6 +9,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_CLANG_TIDY "clang-tidy"; "--warnings-as-errors=*")
 set(CMAKE_DEBUG_POSTFIX "_debug")
 
+add_compile_definitions(
+    SPDLOG_ACTIVE_LEVEL=SPDLOG_DEBUG
+)
+
 # Google Test
 include(FetchContent)
 FetchContent_Declare(
