@@ -135,9 +135,12 @@ int main(int argc, char *argv[]) {
   // Creation of vertex shader
   Shader myShader("assets/shaders/main.vs.glsl", "assets/shaders/main.fs.glsl");
 
-  Cube dirt =
-      Cube(glm::vec2(8, 50), glm::vec2(8, 50), glm::vec2(8, 50),
-           glm::vec2(8, 50), glm::vec2(8, 50), glm::vec2(8, 50), &block_atlas);
+  Cube dirt = Cube(glm::vec2(27, 57), glm::vec2(8, 50), glm::vec2(21, 51),
+                   glm::vec2(21, 51), glm::vec2(21, 51), glm::vec2(21, 51),
+                   &block_atlas);
+  Cube grass_block = Cube(glm::vec2(23, 50), glm::vec2(8, 50),
+                          glm::vec2(21, 51), glm::vec2(21, 51),
+                          glm::vec2(21, 51), glm::vec2(21, 51), &block_atlas);
   dirt.render_setup();
   myShader.use();
   Camera *camera = new Camera(glm::vec3(0.0f, 5.0f, 10.0f));
