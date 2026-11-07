@@ -10,12 +10,6 @@ repos:
     -   id: check-shebang-scripts-are-executable
     -   id: detect-private-key
 
-  - repo: https://github.com/pocc/pre-commit-hooks
-    rev: v1.3.5
-    hooks:
-      - id: clang-tidy
-        args: ["-p=build/debug"]
-
   - repo: local
     hooks:
       - id: build
@@ -32,3 +26,9 @@ repos:
         pass_filenames: false
         always_run: true
         verbose: true
+
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
+    hooks:
+      - id: clang-tidy
+        args: ["-p=build/debug"]

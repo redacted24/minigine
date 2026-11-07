@@ -4,6 +4,7 @@
 #include "object.h"
 #include "renderable.h"
 #include "texture.h"
+#include <array>
 #include <string>
 
 class Cube : public Object, public Renderable {
