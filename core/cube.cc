@@ -57,7 +57,7 @@ Cube::Cube(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
     vertices_arr_idx += 5;
   }
 
-  SPDLOG_DEBUG("Sampled bottom face texture.");
+  SPDLOG_DEBUG("Sampled back face texture.");
 
   // 2. Front face
   pixel_coords = p_atlas->get_pixel_coords(p_front.x, p_front.y);
@@ -108,7 +108,7 @@ Cube::Cube(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
     vertices_arr_idx += 5;
   }
 
-  SPDLOG_DEBUG("Sampled right face texture.");
+  SPDLOG_DEBUG("Sampled bottom face texture.");
 
   // 6. Top
   pixel_coords = p_atlas->get_pixel_coords(p_top.x, p_top.y);
@@ -120,7 +120,7 @@ Cube::Cube(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
     vertices_arr_idx += 5;
   }
 
-  SPDLOG_DEBUG("Sampled right face texture.");
+  SPDLOG_DEBUG("Sampled top face texture.");
 };
 
 int Cube::render_setup() {

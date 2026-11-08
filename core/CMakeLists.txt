@@ -9,6 +9,7 @@ target_sources(core
         perlin_noise.cc
         text.cc
         texture.cc
+        backend.cc
     PUBLIC
         FILE_SET HEADERS
         BASE_DIRS
@@ -21,6 +22,7 @@ target_sources(core
             perlin_noise.h
             text.h
             texture.h
+            backend.h
 )
 target_link_libraries(core
     PUBLIC
