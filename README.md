@@ -12,7 +12,7 @@
 <h3 align="center">Minigine</h3>
 
   <p align="center">
-    Simple 3D game engine made with OpenGL and C++.
+    Simple 3D game engine made with OpenGL and C++. Handcoded :)
     <br />
   </p>
 </div>
