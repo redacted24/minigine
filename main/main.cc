@@ -4,9 +4,9 @@
 #include "perlin_noise.h"
 #include "rendering_engine.h"
 #include "shader.h"
+#include "spdlog/async_logger.h"
 #include "spdlog/spdlog.h"
 #include "stb_image/stb_image.h"
-#include "text.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
@@ -24,53 +24,23 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <iostream>
+#include <memory>
 #include <random>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-int success;
-
 void new_perlin_seed(PerlinNoise *p_perlin,
                      std::vector<glm::vec3> *p_dirt_block_positions,
                      std::vector<glm::vec3> *p_grass_block_positions,
-                     float p_seed = 1.0f) {
-  int x_num = 32;
-  int z_num = 32;
-  const float SCALE = 8.0f;
-  const float MAX_HEIGHT_CHUNK = 9.0f;
-  const float BASE_HEIGHT = 1.0f;
-  float offset = 0.5f;
-
-  int noise_arr[x_num][z_num];
-  for (int i = 0; i < x_num; i++) {
-    for (int j = 0; j < z_num; j++) {
-      float perlin_noise =
-          p_perlin->noise((float)(p_seed * 50 + i) / SCALE, 0.0f,
-                          (float)(p_seed * 50 + j) / SCALE);
-      float normalized_noise = (perlin_noise + 1.0f) / 2.0f;
-      int height =
-          static_cast<int>(BASE_HEIGHT + (normalized_noise)*MAX_HEIGHT_CHUNK);
-
-      noise_arr[i][j] = height;
-    }
-  }
-
-  for (int i = 0; i < x_num; i++) {
-    for (int j = 0; j < z_num; j++) {
-      int k;
-      for (k = 0; k < noise_arr[i][j] - 1; k++) {
-        p_dirt_block_positions->push_back({(float)i, (float)k, (float)j});
-      }
-      p_grass_block_positions->push_back({(float)i, (float)k, (float)j});
-    }
-  }
-}
+                     float p_seed);
 
 int main(int argc, char *argv[]) {
-  // Setup
+  // OpenGL and SDL3 Setup
   Backend::setup();
+
+  // Start font system
+  Backend::initialize_font_system();
 
   // ===============================================
   //
@@ -83,23 +53,18 @@ int main(int argc, char *argv[]) {
 
   int width, height, nrChannels;
 
-  glEnable(GL_BLEND);
-  glEnable(GL_DEPTH_TEST);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  SPDLOG_DEBUG("Enabled GL_DEPTH_TEST and GL_BLEND");
-
   // Creation of vertex shader
   Shader myShader("assets/shaders/main.vs.glsl", "assets/shaders/main.fs.glsl");
 
-  Cube grass_block = Cube(glm::vec2(27, 57), glm::vec2(8, 50),
-                          glm::vec2(21, 51), glm::vec2(21, 51),
-                          glm::vec2(21, 51), glm::vec2(21, 51), &block_atlas);
-  Cube dirt_block =
-      Cube(glm::vec2(8, 50), glm::vec2(8, 50), glm::vec2(8, 50),
-           glm::vec2(8, 50), glm::vec2(8, 50), glm::vec2(8, 50), &block_atlas);
+  Cube grass_block = Cube("grass_block", &block_atlas);
+  Cube dirt_block = Cube("dirt", &block_atlas);
+
   grass_block.render_setup();
   dirt_block.render_setup();
+
   myShader.use();
+
+  // TODO: enable camera view matrix default set
   Camera *camera = new Camera(glm::vec3(15.0f, 27.0f, 51.0f));
 
   // initialize perlin noise
@@ -108,17 +73,6 @@ int main(int argc, char *argv[]) {
   std::vector<glm::vec3> dirtBlockPositions;
   new_perlin_seed(perlin, &dirtBlockPositions, &grassBlockPositions, 0.5f);
 
-  TextRenderer textRenderer;
-  textRenderer.initialize_shaders("assets/shaders/text.vs.glsl",
-                                  "assets/shaders/text.fs.glsl");
-  textRenderer.initialize_font("assets/fonts/arial.ttf");
-  textRenderer.TextShader.use();
-
-  glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH),
-                                    0.0f, static_cast<float>(WINDOW_HEIGHT));
-  glUniformMatrix4fv(
-      glGetUniformLocation(textRenderer.TextShader.ID, "projection"), 1,
-      GL_FALSE, glm::value_ptr(projection));
   // ===============================================
   //
   //								Main loop start
@@ -239,18 +193,55 @@ int main(int argc, char *argv[]) {
         "({:.2f}, {:.2f}, {:.2f})",
         camera->Front.x, camera->Front.y, camera->Front.z, camera->Position.x,
         camera->Position.y, camera->Position.z);
-    textRenderer.RenderText(camera_lookat_debug, 5.0f,
-                            static_cast<float>(WINDOW_HEIGHT) - 30.0f, 0.4f,
-                            glm::vec3(0.0f, 0.0f, 0.0f));
+
+    Backend::textRenderer.RenderText(camera_lookat_debug, 5.0f,
+                                     static_cast<float>(WINDOW_HEIGHT) - 30.0f,
+                                     0.4f, glm::vec3(0.0f, 0.0f, 0.0f));
 
     camera_lookat_debug = std::format("{:d}fps", frames_per_second);
-    textRenderer.RenderText(camera_lookat_debug, 5.0f,
-                            static_cast<float>(WINDOW_HEIGHT) - 55.0f, 0.4f,
-                            glm::vec3(0));
+    Backend::textRenderer.RenderText(camera_lookat_debug, 5.0f,
+                                     static_cast<float>(WINDOW_HEIGHT) - 55.0f,
+                                     0.4f, glm::vec3(0));
     glDisable(GL_CULL_FACE);
 
     SDL_GL_SwapWindow(Backend::window);
   }
   SPDLOG_INFO("Program exit");
   return 0;
+}
+
+void new_perlin_seed(PerlinNoise *p_perlin,
+                     std::vector<glm::vec3> *p_dirt_block_positions,
+                     std::vector<glm::vec3> *p_grass_block_positions,
+                     float p_seed = 1.0f) {
+  int x_num = 32;
+  int z_num = 32;
+  const float SCALE = 8.0f;
+  const float MAX_HEIGHT_CHUNK = 9.0f;
+  const float BASE_HEIGHT = 1.0f;
+  float offset = 0.5f;
+
+  int noise_arr[x_num][z_num];
+  for (int i = 0; i < x_num; i++) {
+    for (int j = 0; j < z_num; j++) {
+      float perlin_noise =
+          p_perlin->noise((float)(p_seed * 50 + i) / SCALE, 0.0f,
+                          (float)(p_seed * 50 + j) / SCALE);
+      float normalized_noise = (perlin_noise + 1.0f) / 2.0f;
+      int height =
+          static_cast<int>(BASE_HEIGHT + (normalized_noise)*MAX_HEIGHT_CHUNK);
+
+      noise_arr[i][j] = height;
+    }
+  }
+
+  for (int i = 0; i < x_num; i++) {
+    for (int j = 0; j < z_num; j++) {
+      int k;
+      for (k = 0; k < noise_arr[i][j] - 1; k++) {
+        p_dirt_block_positions->push_back({(float)i, (float)k, (float)j});
+      }
+      p_grass_block_positions->push_back({(float)i, (float)k, (float)j});
+    }
+  }
 }

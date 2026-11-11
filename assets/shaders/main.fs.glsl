@@ -9,6 +9,5 @@ uniform float transparency = 0.2;
 
 void main()
 {
-  // FragColor = texture(texture1, TexCoord);
-  FragColor = mix(texture(texture1, TexCoord), texture(texture2, vec2(TexCoord.x, TexCoord.y)), transparency);
+  FragColor = texture(texture1, TexCoord);
 }

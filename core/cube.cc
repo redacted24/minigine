@@ -1,15 +1,53 @@
 #include "cube.h"
 #include "glad/glad.h"
 #include "stb_image/stb_image.h"
+#include "json/json.hpp"
+#include <fstream>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/quaternion_transform.hpp>
 #include <glm/ext/vector_float3.hpp>
 #include <spdlog/spdlog.h>
+#include <string>
+#include <unordered_map>
+
+using nlohmann::json;
+
+Cube::Cube(std::string p_blockname, Texture *p_atlas) {
+  std::ifstream blocks_json_file("assets/blocks/blocks.json");
+  atlas = p_atlas;
+
+  json data = json::parse(blocks_json_file);
+  if (!data.contains(p_blockname)) {
+    // soft fail
+    SPDLOG_ERROR("Blockname {} could not be found in blocks.json", p_blockname);
+  } else {
+    std::unordered_map<std::string, std::pair<float, float>> uv_coords =
+        data[p_blockname]
+            .get<std::unordered_map<std::string, std::pair<float, float>>>();
+    setup_vertices(
+        glm::vec2(uv_coords["top"].first, uv_coords["top"].second),
+        glm::vec2(uv_coords["bot"].first, uv_coords["bot"].second),
+        glm::vec2(uv_coords["front"].first, uv_coords["front"].second),
+        glm::vec2(uv_coords["left"].first, uv_coords["left"].second),
+        glm::vec2(uv_coords["back"].first, uv_coords["back"].second),
+        glm::vec2(uv_coords["right"].first, uv_coords["right"].second));
+  }
+  blocks_json_file.close();
+}
 
 Cube::Cube(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
            glm::vec2 p_left, glm::vec2 p_back, glm::vec2 p_right,
            Texture *p_atlas) {
+  SPDLOG_WARN("The cube constructor with pixel coordinates is deprecated. Use "
+              "the constructor with block name instead.");
   atlas = p_atlas;
+  setup_vertices(p_top, p_bot, p_front, p_left, p_back, p_right);
+}
+
+int Cube::setup_vertices(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
+                         glm::vec2 p_left, glm::vec2 p_back,
+                         glm::vec2 p_right) {
+  assert(atlas != nullptr && "Texture atlas cannot be null.");
   // Immediately load the vertices
   // 1. Back face
   // 2. Front face
@@ -46,8 +84,8 @@ Cube::Cube(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
 
   // 1. Back face
   std::array<glm::vec2, 4> pixel_coords =
-      p_atlas->get_pixel_coords(p_back.x, p_back.y);
-  std::array<glm::vec2, 4> uv_coords = p_atlas->get_uv_coords(pixel_coords);
+      atlas->get_pixel_coords(p_back.x, p_back.y);
+  std::array<glm::vec2, 4> uv_coords = atlas->get_uv_coords(pixel_coords);
 
   std::array<int, 6> indices = {0, 1, 2, 2, 3, 0};
 
@@ -60,8 +98,8 @@ Cube::Cube(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
   SPDLOG_DEBUG("Sampled back face texture.");
 
   // 2. Front face
-  pixel_coords = p_atlas->get_pixel_coords(p_front.x, p_front.y);
-  uv_coords = p_atlas->get_uv_coords(pixel_coords);
+  pixel_coords = atlas->get_pixel_coords(p_front.x, p_front.y);
+  uv_coords = atlas->get_uv_coords(pixel_coords);
 
   for (int i = 0; i < 6; i++) {
     Vertices[vertices_arr_idx + 3] = uv_coords[indices[i]].x;
@@ -73,8 +111,8 @@ Cube::Cube(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
 
   // 3. Left
   indices = {2, 3, 0, 0, 1, 2};
-  pixel_coords = p_atlas->get_pixel_coords(p_left.x, p_left.y);
-  uv_coords = p_atlas->get_uv_coords(pixel_coords);
+  pixel_coords = atlas->get_pixel_coords(p_left.x, p_left.y);
+  uv_coords = atlas->get_uv_coords(pixel_coords);
 
   for (int i = 0; i < 6; i++) {
     Vertices[vertices_arr_idx + 3] = uv_coords[indices[i]].x;
@@ -85,8 +123,8 @@ Cube::Cube(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
   SPDLOG_DEBUG("Sampled left face texture.");
 
   // 4. Right
-  pixel_coords = p_atlas->get_pixel_coords(p_right.x, p_right.y);
-  uv_coords = p_atlas->get_uv_coords(pixel_coords);
+  pixel_coords = atlas->get_pixel_coords(p_right.x, p_right.y);
+  uv_coords = atlas->get_uv_coords(pixel_coords);
 
   for (int i = 0; i < 6; i++) {
     Vertices[vertices_arr_idx + 3] = uv_coords[indices[i]].x;
@@ -99,8 +137,8 @@ Cube::Cube(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
   indices = {0, 1, 2, 2, 3, 0};
 
   // 5. Bottom
-  pixel_coords = p_atlas->get_pixel_coords(p_bot.x, p_bot.y);
-  uv_coords = p_atlas->get_uv_coords(pixel_coords);
+  pixel_coords = atlas->get_pixel_coords(p_bot.x, p_bot.y);
+  uv_coords = atlas->get_uv_coords(pixel_coords);
 
   for (int i = 0; i < 6; i++) {
     Vertices[vertices_arr_idx + 3] = uv_coords[indices[i]].x;
@@ -111,8 +149,8 @@ Cube::Cube(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
   SPDLOG_DEBUG("Sampled bottom face texture.");
 
   // 6. Top
-  pixel_coords = p_atlas->get_pixel_coords(p_top.x, p_top.y);
-  uv_coords = p_atlas->get_uv_coords(pixel_coords);
+  pixel_coords = atlas->get_pixel_coords(p_top.x, p_top.y);
+  uv_coords = atlas->get_uv_coords(pixel_coords);
 
   for (int i = 0; i < 6; i++) {
     Vertices[vertices_arr_idx + 3] = uv_coords[indices[i]].x;
@@ -121,6 +159,8 @@ Cube::Cube(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
   }
 
   SPDLOG_DEBUG("Sampled top face texture.");
+
+  return 0;
 };
 
 int Cube::render_setup() {

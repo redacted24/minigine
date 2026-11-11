@@ -2,13 +2,17 @@
 #include "SDL3/SDL.h"
 #include "glad/glad.h"
 #include "spdlog/spdlog.h"
+#include "text.h"
 #include <SDL3/SDL_video.h>
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Backend {
 
 SDL_Window *window = nullptr;
 SDL_Renderer *renderer = nullptr;
 bool running = true;
+TextRenderer textRenderer;
 
 int setup() {
   // ===============================================
@@ -59,6 +63,27 @@ int setup() {
 
   // Load GLAD
   int version = gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
+
+  glEnable(GL_BLEND);
+  glEnable(GL_DEPTH_TEST);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  SPDLOG_DEBUG("Enabled GL_DEPTH_TEST and GL_BLEND");
+
+  return 0;
+}
+
+int initialize_font_system() {
+  textRenderer.initialize_shaders("assets/shaders/text.vs.glsl",
+                                  "assets/shaders/text.fs.glsl");
+  textRenderer.initialize_font("assets/fonts/arial.ttf");
+  textRenderer.TextShader.use();
+
+  glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH),
+                                    0.0f, static_cast<float>(WINDOW_HEIGHT));
+  glUniformMatrix4fv(
+      glGetUniformLocation(textRenderer.TextShader.ID, "projection"), 1,
+      GL_FALSE, glm::value_ptr(projection));
+
   return 0;
 }
 } // namespace Backend
