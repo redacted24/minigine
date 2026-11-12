@@ -6,6 +6,7 @@
 #include <array>
 
 class Light : public Object, public Renderable {
+public:
   unsigned int VAO, VBO, TextureData;
   std::array<float, 180> Vertices = {
       -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,

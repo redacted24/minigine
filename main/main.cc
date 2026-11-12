@@ -4,6 +4,7 @@
 #include "glad/glad.h"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
+#include "light.h"
 #include "perlin_noise.h"
 #include "rendering_engine.h"
 #include "shader.h"
@@ -51,14 +52,18 @@ int main(int argc, char *argv[]) {
 
   // Creation of vertex shader
   Shader myShader("assets/shaders/main.vs.glsl", "assets/shaders/main.fs.glsl");
+  Shader lightShader("assets/shaders/light.vs.glsl",
+                     "assets/shaders/light.fs.glsl");
 
   Cube grass_block = Cube("grass_block", &block_atlas);
   Cube dirt_block = Cube("dirt", &block_atlas);
+  Light light_block = Light();
 
   grass_block.render_setup();
   dirt_block.render_setup();
 
   myShader.use();
+  myShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
   // TODO: enable camera view matrix default set
   Camera *camera = new Camera(glm::vec3(15.0f, 27.0f, 51.0f));

@@ -11,4 +11,7 @@ Light::Light() {
                         (void *)nullptr);
   glEnableVertexAttribArray(0);
 }
+
 void Light::render() { return; }
+
+int Light::render_setup() { return 0; }
