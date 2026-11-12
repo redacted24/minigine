@@ -25,6 +25,67 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <vector>
+
+bool is_in_quadrant(const glm::vec3 &p_position, int p_quadrant) {
+  const bool positive_x =
+      p_position.x >= 16.0f; // terrain center cause chunk is 0 to 31
+  const bool positive_z = p_position.z >= 16.0f; // terrain center
+
+  switch (p_quadrant) {
+  case 0: // +x, +z
+    return positive_x && positive_z;
+  case 1: // -x, +z
+    return !positive_x && positive_z;
+  case 2: // -x, -z
+    return !positive_x && !positive_z;
+  case 3: // +x, -z
+    return positive_x && !positive_z;
+  default:
+    return false;
+  }
+}
+
+// remove position from dirt array position and grass positions
+void remove_quadrant_layer(std::vector<glm::vec3> &p_dirt_positions,
+                           std::vector<glm::vec3> &p_grass_positions,
+                           int p_layer, int p_quadrant) {
+  for (auto it = p_dirt_positions.begin(); it != p_dirt_positions.end();) {
+    if (it->y == static_cast<float>(p_layer) &&
+        is_in_quadrant(*it, p_quadrant)) {
+      it = p_dirt_positions.erase(it);
+    } else {
+      ++it;
+    }
+  }
+
+  for (auto it = p_grass_positions.begin(); it != p_grass_positions.end();) {
+    if (it->y == static_cast<float>(p_layer) &&
+        is_in_quadrant(*it, p_quadrant)) {
+      it = p_grass_positions.erase(it);
+    } else {
+      ++it;
+    }
+  }
+}
+
+// just to get highest layer so we don't remove starting from 9 but from highest
+// block
+int get_highest_layer(const std::vector<glm::vec3> &p_dirt_positions,
+                      const std::vector<glm::vec3> &p_grass_positions) {
+  int highest_layer = 0;
+
+  for (const glm::vec3 &position : p_dirt_positions) {
+    highest_layer = std::max(highest_layer, static_cast<int>(position.y));
+  }
+
+  for (const glm::vec3 &position : p_grass_positions) {
+    highest_layer = std::max(highest_layer, static_cast<int>(position.y));
+  }
+
+  return highest_layer;
+}
+
 void new_perlin_seed(PerlinNoise *p_perlin,
                      std::vector<glm::vec3> *p_dirt_block_positions,
                      std::vector<glm::vec3> *p_grass_block_positions,
@@ -97,6 +158,13 @@ int main(int argc, char *argv[]) {
   std::mt19937 gen(rd());
   std::uniform_real_distribution<float> distrib(0.0f, 1.0f);
 
+  int current_layer =
+      get_highest_layer(dirtBlockPositions, grassBlockPositions);
+  int quadrant = 0;
+  bool base_layer_removed = false;
+
+  constexpr const char *QUADRANT_NAMES[] = {"+x, +z", "-x, +z", "-x, -z",
+                                            "+x, -z"};
   while (running) {
     float currentFrame = static_cast<float>(SDL_GetTicks() / 1000.0f);
     deltaTime = currentFrame - lastFrame;
@@ -130,13 +198,34 @@ int main(int argc, char *argv[]) {
         mouseEvent = e.motion;
         camera->ProcessMouseMovement(mouseEvent.xrel, -mouseEvent.yrel);
       } else if (e.type == SDL_EVENT_KEY_DOWN) {
-        if (e.key.key == SDLK_C) {
+        if (e.key.key == SDLK_F) {
+          if (current_layer >= 0) {
+            const int removed_quadrant = quadrant;
+
+            remove_quadrant_layer(dirtBlockPositions, grassBlockPositions,
+                                  current_layer, removed_quadrant);
+
+            SPDLOG_DEBUG("removed layer {} in quadrant {}", current_layer,
+                         QUADRANT_NAMES[removed_quadrant]);
+            quadrant++;
+            if (quadrant == 4) {
+              quadrant = 0;
+              current_layer--;
+            }
+          }
+        } else if (e.key.key == SDLK_C) {
           dirtBlockPositions.clear();
           grassBlockPositions.clear();
           float seed = distrib(gen);
           new_perlin_seed(perlin, &dirtBlockPositions, &grassBlockPositions,
                           seed);
           SPDLOG_DEBUG("Change perlin noise seed to {:.4f}", seed);
+
+          current_layer =
+              get_highest_layer(dirtBlockPositions, grassBlockPositions);
+          int quadrant = 0;
+          bool base_layer_removed = false;
+          SPDLOG_DEBUG("New highest layer: {}", current_layer);
         }
       }
     }
