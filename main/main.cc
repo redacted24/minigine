@@ -30,7 +30,7 @@ void new_perlin_seed(PerlinNoise *p_perlin,
                      std::vector<glm::vec3> *p_grass_block_positions,
                      float p_seed);
 
-glm::vec3 light_source_position(40.0f, 12.0f, 17.0f); // lighting
+glm::vec3 light_source_position(23.0f, 15.0f, 14.0f); // lighting
 
 int main(int argc, char *argv[]) {
   // OpenGL and SDL3 Setup
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
   dirt_block.render_setup();
 
   // TODO: enable camera view matrix default set
-  Camera *camera = new Camera(glm::vec3(15.0f, 27.0f, 51.0f));
+  Camera *camera = new Camera(glm::vec3(1.0f, 8.0f, 30.0f));
 
   // initialize perlin noise
   PerlinNoise *perlin = new PerlinNoise();
@@ -151,7 +151,8 @@ int main(int argc, char *argv[]) {
     // activate shader
     lightShader.use();
     lightShader.setVec3("lightPos", light_source_position);
-    lightShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+    lightShader.setVec3("lightColor", 1.0f, 0.6f, 0.6f);
+    lightShader.setFloat("lightStrength", 1.0f);
     lightShader.setVec3("viewPos", camera->Position);
     glm::mat4 projection = glm::perspective(
         glm::radians(45.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f,

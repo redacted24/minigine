@@ -9,6 +9,7 @@ in vec3 FragPos;
 uniform sampler2D texture1;
 uniform vec3 lightColor;
 uniform vec3 lightPos; // position of the light source in the world.
+uniform float lightStrength;
 
 // TODO: currently specular lighting calculated from world view
 uniform vec3 viewPos;
@@ -19,7 +20,7 @@ void main()
   FragColor = texture(texture1, TexCoord);
 
   // ambient
-  float ambientStrength = 0.5;
+  float ambientStrength = 0.45;
   vec3 ambient = lightColor * ambientStrength;
 
   // diffuse
@@ -29,15 +30,16 @@ void main()
   vec3 diffuse = diff * lightColor;
 
   // specular
-  float specularStrength = 0.5;
+  float specularStrength = 0.6;
   vec3 viewDir = normalize(viewPos - FragPos);
   // NOTE: negative lightdir due to subtraction order earlier
   vec3 reflectDir = reflect(-lightDir, norm);
 
-  float spec = pow(max(dot(viewDir, reflectDir), 0.0), 48);
+  float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
   vec3 specular = specularStrength * spec * lightColor;
 
   // final result
   vec3 result = (ambient + diffuse + specular) * FragColor.rgb;
+  result = result * lightStrength;
   FragColor = vec4(result, 1.0);
 }
