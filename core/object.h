@@ -11,10 +11,10 @@ public:
   glm::vec3 GlobalPosition;
   glm::vec3 RotationAxis;
   float RotationRadians;
-  virtual glm::vec3 get_local_position() = 0;
-  virtual glm::vec3 get_global_position() = 0;
-  virtual glm::vec3 get_rotation_axis() = 0;
-  virtual float get_rotation_radians() = 0;
+  glm::vec3 get_local_position();
+  glm::vec3 get_global_position();
+  glm::vec3 get_rotation_axis();
+  float get_rotation_radians();
 };
 
 #endif // OBJECT_H

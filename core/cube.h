@@ -9,20 +9,34 @@
 
 class Cube : public Object, public Renderable {
 public:
-  std::string Name;
-  glm::vec3 LocalPosition;
-  glm::vec3 GlobalPosition;
-  glm::vec3 RotationAxis;
-  float RotationRadians;
   unsigned int VAO, VBO, TextureData;
   Texture *atlas;
-  std::array<float, 180> Vertices;
+  std::array<float, 180> Vertices = {
+      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 0.0f,
+      0.5f,  0.5f,  -0.5f, 1.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
+      -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+
+      -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
+      0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+      -0.5f, 0.5f,  0.5f,  0.0f, 1.0f, -0.5f, -0.5f, 0.5f,  0.0f, 0.0f,
+
+      -0.5f, 0.5f,  0.5f,  1.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 1.0f, 1.0f,
+      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+      -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  0.5f,  1.0f, 0.0f,
+
+      0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
+      0.5f,  -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 0.0f, 1.0f,
+      0.5f,  -0.5f, 0.5f,  0.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+      -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.5f,  -0.5f, -0.5f, 1.0f, 1.0f,
+      0.5f,  -0.5f, 0.5f,  1.0f, 0.0f, 0.5f,  -0.5f, 0.5f,  1.0f, 0.0f,
+      -0.5f, -0.5f, 0.5f,  0.0f, 0.0f, -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+
+      -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f, 0.5f,  0.5f,  -0.5f, 1.0f, 1.0f,
+      0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+      -0.5f, 0.5f,  0.5f,  0.0f, 0.0f, -0.5f, 0.5f,  -0.5f, 0.0f, 1.0f};
 
   Cube(std::string p_blockname, Texture *p_atlas);
-
-  // WARNING\: deprecated. Use Cube with block name constructor instead.
-  Cube(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front, glm::vec2 p_left,
-       glm::vec2 p_back, glm::vec2 p_right, Texture *p_atlas);
 
   /**
    * @brief Modifies the UV coordinates of the vertex array for a cube to match
@@ -41,11 +55,6 @@ public:
 
   /// ============ Overrides ==================
 
-  // Object
-  virtual glm::vec3 get_local_position() override;
-  virtual glm::vec3 get_global_position() override;
-  virtual glm::vec3 get_rotation_axis() override;
-  virtual float get_rotation_radians() override;
   // Renderable
   void render() override;
   int render_setup() override;

@@ -24,7 +24,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <memory>
 #include <random>
 
 #include <ft2build.h>
@@ -47,6 +46,8 @@ int main(int argc, char *argv[]) {
   //						   User program start
   //
   // ===============================================
+
+  // light source
 
   Texture block_atlas = Texture("assets/textures/block_atlas.png");
   block_atlas.load_texture();

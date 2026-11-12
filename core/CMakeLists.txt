@@ -10,6 +10,7 @@ target_sources(core
         text.cc
         texture.cc
         backend.cc
+        light.cc
     PUBLIC
         FILE_SET HEADERS
         BASE_DIRS
@@ -23,6 +24,7 @@ target_sources(core
             text.h
             texture.h
             backend.h
+            light.h
 )
 target_link_libraries(core
     PUBLIC
