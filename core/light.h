@@ -3,6 +3,7 @@
 
 #include "object.h"
 #include "renderable.h"
+#include <array>
 
 class Light : public Object, public Renderable {
   unsigned int VAO, VBO, TextureData;

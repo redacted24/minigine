@@ -6,7 +6,7 @@ project(minigine)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_CLANG_TIDY "clang-tidy"; "--warnings-as-errors=*")
+set(CMAKE_CXX_CLANG_TIDY "clang-tidy;--warnings-as-errors=*")
 set(CMAKE_DEBUG_POSTFIX "_debug")
 
 add_compile_definitions(
