@@ -43,8 +43,6 @@ int main(int argc, char *argv[]) {
   //
   // ===============================================
 
-  // light source
-
   Texture block_atlas = Texture("assets/textures/block_atlas.png");
   block_atlas.load_texture();
 
@@ -169,6 +167,7 @@ int main(int argc, char *argv[]) {
     glm::mat4 view = camera->GetViewMatrix();
     myShader.setMat4("view", view);
 
+    // Render terrain
     for (unsigned int i = 0; i < grassBlockPositions.size(); i++) {
       glBindVertexArray(grass_block.VAO);
       glBindTexture(GL_TEXTURE_2D, block_atlas.GlTextureData);
@@ -188,6 +187,20 @@ int main(int argc, char *argv[]) {
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
+    // Render light source
+    lightShader.use();
+    glBindTexture(GL_TEXTURE_2D, light_block.VBO);
+    glBindVertexArray(light_block.VAO);
+    glm::vec3 light_source_position(32.0f, 18.0f, 21.0f);
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, light_source_position);
+    lightShader.setMat4("model", model);
+    lightShader.setMat4("view", view);
+    lightShader.setMat4("projection", projection);
+    // myShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    // Render text
     glEnable(GL_CULL_FACE);
     std::string camera_lookat_debug = std::format(
         "Camera lookat: ({:.2f}, {:.2f}, {:.2f}) - Camera position: "
