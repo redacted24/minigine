@@ -1,10 +1,12 @@
 #include "main.h"
 #include "backend.h"
 #include "camera.h"
+#include "glad/glad.h"
+#include "glm/ext/matrix_clip_space.hpp"
+#include "glm/ext/matrix_transform.hpp"
 #include "perlin_noise.h"
 #include "rendering_engine.h"
 #include "shader.h"
-#include "spdlog/async_logger.h"
 #include "spdlog/spdlog.h"
 #include "stb_image/stb_image.h"
 #include <SDL3/SDL.h>
@@ -17,13 +19,6 @@
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
-#include <glad/glad.h>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/ext/quaternion_transform.hpp>
-#include <glm/geometric.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <random>
 
 #include <ft2build.h>

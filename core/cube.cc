@@ -18,7 +18,7 @@ Cube::Cube(std::string p_blockname, Texture *p_atlas) {
 
   json data = json::parse(blocks_json_file);
   if (!data.contains(p_blockname)) {
-    // soft fail
+    // soft fail. will just render black screen
     SPDLOG_ERROR("Blockname {} could not be found in blocks.json", p_blockname);
   } else {
     std::unordered_map<std::string, std::pair<float, float>> uv_coords =

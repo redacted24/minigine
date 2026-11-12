@@ -1,4 +1,5 @@
 #include "light.h"
-#include <glm/ext/vector_float3.hpp>
+#include "glad/glad.h"
 
+Light::Light() { glGenVertexArrays(1, &VAO); }
 void Light::render() { return; }

@@ -1,7 +1,7 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include <glm/ext/vector_float3.hpp>
+#include "glm/ext/vector_float3.hpp"
 #include <string>
 
 class Object {
