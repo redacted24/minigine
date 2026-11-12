@@ -152,6 +152,7 @@ int main(int argc, char *argv[]) {
     lightShader.use();
     lightShader.setVec3("lightPos", light_source_position);
     lightShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+    lightShader.setVec3("viewPos", camera->Position);
     glm::mat4 projection = glm::perspective(
         glm::radians(45.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f,
         100.0f);
