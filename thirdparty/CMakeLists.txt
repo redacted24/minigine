@@ -30,6 +30,7 @@ target_sources(thirdparty
             glad/glad.h
             stb_image/stb_image.h
             KHR/khrplatform.h
+            json/json.hpp
 )
 
 # Thirdparty vendors

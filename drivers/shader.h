@@ -1,8 +1,8 @@
 #ifndef SHADER_H
 #define SHADER_H
 
+#include "glm/ext/matrix_float2x2.hpp"
 #include <glad/glad.h>
-#include <glm/glm.hpp>
 #include <spdlog/spdlog.h>
 #include <string>
 

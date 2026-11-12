@@ -1,11 +1,14 @@
 #include "main.h"
+#include "backend.h"
 #include "camera.h"
+#include "glad/glad.h"
+#include "glm/ext/matrix_clip_space.hpp"
+#include "glm/ext/matrix_transform.hpp"
 #include "perlin_noise.h"
 #include "rendering_engine.h"
 #include "shader.h"
 #include "spdlog/spdlog.h"
 #include "stb_image/stb_image.h"
-#include "text.h"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
@@ -16,106 +19,22 @@
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_video.h>
-#include <glad/glad.h>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/ext/quaternion_transform.hpp>
-#include <glm/geometric.hpp>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <random>
-
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-static SDL_Window *window = nullptr;
-static SDL_Renderer *renderer = nullptr;
-
-int success;
-
 void new_perlin_seed(PerlinNoise *p_perlin,
                      std::vector<glm::vec3> *p_dirt_block_positions,
                      std::vector<glm::vec3> *p_grass_block_positions,
-                     float p_seed = 1.0f) {
-  int x_num = 16;
-  int z_num = 16;
-  const int MAX_HEIGHT_CHUNK = 7;
-  float offset = 0.5f;
-
-  int noise_arr[x_num][z_num];
-  for (int i = 0; i < x_num; i++) {
-    for (int j = 0; j < z_num; j++) {
-      float perlin_noise =
-          p_perlin->noise(i / 2 + p_seed, j / 2 + p_seed, p_seed);
-      perlin_noise = ((perlin_noise + 1.0f) / 2.0f) *
-                     (float)MAX_HEIGHT_CHUNK; // scale to [0, 5]
-      noise_arr[i][j] = perlin_noise;
-    }
-  }
-
-  for (int i = 0; i < x_num; i++) {
-    for (int j = 0; j < z_num; j++) {
-      int k;
-      for (k = 0; k < noise_arr[i][j] - 1; k++) {
-        p_dirt_block_positions->push_back({(float)i, (float)k, (float)j});
-      }
-      p_grass_block_positions->push_back({(float)i, (float)k, (float)j});
-    }
-  }
-}
+                     float p_seed);
 
 int main(int argc, char *argv[]) {
-  // ===============================================
-  //
-  //								SDL3 setup
-  //
-  // ===============================================
+  // OpenGL and SDL3 Setup
+  Backend::setup();
 
-  // https://github.com/gabime/spdlog/wiki/Custom-formatting
-  // spdlog::set_pattern("[%H:%M:%S] [%^%l%$] %v");
-  spdlog::set_pattern("[%H:%M:%S] [%^%l%$] [%s:%#] %v");
-  spdlog::set_level(spdlog::level::debug);
-  SPDLOG_INFO("Start of program");
-  if (SDL_Init(SDL_INIT_VIDEO) == false) {
-    SPDLOG_CRITICAL("SDL could not initialize. SDL error: {}", SDL_GetError());
-    return -1;
-  };
-
-  // Create a window
-  if (!SDL_CreateWindowAndRenderer("SDL3 Tutorial", WINDOW_WIDTH, WINDOW_HEIGHT,
-                                   (SDL_WINDOW_MINIMIZED), &window,
-                                   &renderer)) {
-    SPDLOG_CRITICAL("Couldn't create window/renderer: {}", SDL_GetError());
-    return -1;
-  }
-  SPDLOG_INFO("Initialized SDL window width {}px and window height {}px",
-              WINDOW_WIDTH, WINDOW_HEIGHT);
-
-  // Set OpenGL attributes
-  unsigned int sdl_version = 3;
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, sdl_version);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, sdl_version);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-  SPDLOG_INFO("Initialized SDL with version {}", sdl_version);
-
-  // Context
-  SDL_GLContext gl_context = SDL_GL_CreateContext(window);
-  if (!gl_context) {
-    SPDLOG_CRITICAL("Could not create opengl context, shutting down program");
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-    return -1;
-  }
-  SDL_GL_MakeCurrent(window, gl_context);
-
-  // App scale
-  SDL_SetRenderScale(renderer, 1.0, 1.0);
-
-  // Load GLAD
-  int version = gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
+  // Start font system
+  Backend::initialize_font_system();
 
   // ===============================================
   //
@@ -123,29 +42,26 @@ int main(int argc, char *argv[]) {
   //
   // ===============================================
 
+  // light source
+
   Texture block_atlas = Texture("assets/textures/block_atlas.png");
   block_atlas.load_texture();
 
   int width, height, nrChannels;
 
-  glEnable(GL_BLEND);
-  glEnable(GL_DEPTH_TEST);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  SPDLOG_DEBUG("Enabled GL_DEPTH_TEST and GL_BLEND");
-
   // Creation of vertex shader
   Shader myShader("assets/shaders/main.vs.glsl", "assets/shaders/main.fs.glsl");
 
-  Cube grass_block = Cube(glm::vec2(27, 57), glm::vec2(8, 50),
-                          glm::vec2(21, 51), glm::vec2(21, 51),
-                          glm::vec2(21, 51), glm::vec2(21, 51), &block_atlas);
-  Cube dirt_block =
-      Cube(glm::vec2(8, 50), glm::vec2(8, 50), glm::vec2(8, 50),
-           glm::vec2(8, 50), glm::vec2(8, 50), glm::vec2(8, 50), &block_atlas);
+  Cube grass_block = Cube("grass_block", &block_atlas);
+  Cube dirt_block = Cube("dirt", &block_atlas);
+
   grass_block.render_setup();
   dirt_block.render_setup();
+
   myShader.use();
-  Camera *camera = new Camera(glm::vec3(0.0f, 5.0f, 10.0f));
+
+  // TODO: enable camera view matrix default set
+  Camera *camera = new Camera(glm::vec3(15.0f, 27.0f, 51.0f));
 
   // initialize perlin noise
   PerlinNoise *perlin = new PerlinNoise();
@@ -153,17 +69,6 @@ int main(int argc, char *argv[]) {
   std::vector<glm::vec3> dirtBlockPositions;
   new_perlin_seed(perlin, &dirtBlockPositions, &grassBlockPositions, 0.5f);
 
-  TextRenderer textRenderer;
-  textRenderer.initialize_shaders("assets/shaders/text.vs.glsl",
-                                  "assets/shaders/text.fs.glsl");
-  textRenderer.initialize_font("assets/fonts/arial.ttf");
-  textRenderer.TextShader.use();
-
-  glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(WINDOW_WIDTH),
-                                    0.0f, static_cast<float>(WINDOW_HEIGHT));
-  glUniformMatrix4fv(
-      glGetUniformLocation(textRenderer.TextShader.ID, "projection"), 1,
-      GL_FALSE, glm::value_ptr(projection));
   // ===============================================
   //
   //								Main loop start
@@ -187,7 +92,7 @@ int main(int argc, char *argv[]) {
   // randomness
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<float> distrib(0.2, 0.8);
+  std::uniform_real_distribution<float> distrib(0.0f, 1.0f);
 
   while (running) {
     float currentFrame = static_cast<float>(SDL_GetTicks() / 1000.0f);
@@ -249,7 +154,7 @@ int main(int argc, char *argv[]) {
     // activate shader
     myShader.use();
 
-    SDL_SetWindowRelativeMouseMode(window, true);
+    SDL_SetWindowRelativeMouseMode(Backend::window, true);
 
     glm::mat4 projection = glm::perspective(
         glm::radians(45.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f,
@@ -284,18 +189,55 @@ int main(int argc, char *argv[]) {
         "({:.2f}, {:.2f}, {:.2f})",
         camera->Front.x, camera->Front.y, camera->Front.z, camera->Position.x,
         camera->Position.y, camera->Position.z);
-    textRenderer.RenderText(camera_lookat_debug, 5.0f,
-                            static_cast<float>(WINDOW_HEIGHT) - 30.0f, 0.4f,
-                            glm::vec3(0.0f, 0.0f, 0.0f));
+
+    Backend::textRenderer.RenderText(camera_lookat_debug, 5.0f,
+                                     static_cast<float>(WINDOW_HEIGHT) - 30.0f,
+                                     0.4f, glm::vec3(0.0f, 0.0f, 0.0f));
 
     camera_lookat_debug = std::format("{:d}fps", frames_per_second);
-    textRenderer.RenderText(camera_lookat_debug, 5.0f,
-                            static_cast<float>(WINDOW_HEIGHT) - 55.0f, 0.4f,
-                            glm::vec3(0));
+    Backend::textRenderer.RenderText(camera_lookat_debug, 5.0f,
+                                     static_cast<float>(WINDOW_HEIGHT) - 55.0f,
+                                     0.4f, glm::vec3(0));
     glDisable(GL_CULL_FACE);
 
-    SDL_GL_SwapWindow(window);
+    SDL_GL_SwapWindow(Backend::window);
   }
   SPDLOG_INFO("Program exit");
   return 0;
+}
+
+void new_perlin_seed(PerlinNoise *p_perlin,
+                     std::vector<glm::vec3> *p_dirt_block_positions,
+                     std::vector<glm::vec3> *p_grass_block_positions,
+                     float p_seed = 1.0f) {
+  int x_num = 32;
+  int z_num = 32;
+  const float SCALE = 8.0f;
+  const float MAX_HEIGHT_CHUNK = 9.0f;
+  const float BASE_HEIGHT = 1.0f;
+  float offset = 0.5f;
+
+  int noise_arr[x_num][z_num];
+  for (int i = 0; i < x_num; i++) {
+    for (int j = 0; j < z_num; j++) {
+      float perlin_noise =
+          p_perlin->noise((float)(p_seed * 50 + i) / SCALE, 0.0f,
+                          (float)(p_seed * 50 + j) / SCALE);
+      float normalized_noise = (perlin_noise + 1.0f) / 2.0f;
+      int height =
+          static_cast<int>(BASE_HEIGHT + (normalized_noise)*MAX_HEIGHT_CHUNK);
+
+      noise_arr[i][j] = height;
+    }
+  }
+
+  for (int i = 0; i < x_num; i++) {
+    for (int j = 0; j < z_num; j++) {
+      int k;
+      for (k = 0; k < noise_arr[i][j] - 1; k++) {
+        p_dirt_block_positions->push_back({(float)i, (float)k, (float)j});
+      }
+      p_grass_block_positions->push_back({(float)i, (float)k, (float)j});
+    }
+  }
 }

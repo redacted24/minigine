@@ -1,9 +1,8 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#include "glm/ext/vector_float2.hpp"
 #include <filesystem>
-#include <glm/ext/vector_double2.hpp>
-#include <glm/ext/vector_float2.hpp>
 #include <string>
 
 class Texture {

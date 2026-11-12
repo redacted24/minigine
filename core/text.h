@@ -2,8 +2,9 @@
 #define TEXT_H
 
 #include "glad/glad.h"
+#include "glm/ext/vector_float3.hpp"
+#include "glm/ext/vector_int2.hpp"
 #include "shader.h"
-#include <glm/glm.hpp>
 #include <map>
 #include <string>
 
