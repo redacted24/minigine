@@ -18,7 +18,7 @@ Cube::Cube(std::string p_blockname, Texture *p_atlas) {
 
   json data = json::parse(blocks_json_file);
   if (!data.contains(p_blockname)) {
-    // soft fail. will just render black screen
+    // soft fail
     SPDLOG_ERROR("Blockname {} could not be found in blocks.json", p_blockname);
   } else {
     std::unordered_map<std::string, std::pair<float, float>> uv_coords =
@@ -59,7 +59,7 @@ int Cube::setup_vertices(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
   for (int i = 0; i < 6; i++) {
     Vertices[vertices_arr_idx + 3] = uv_coords[indices[i]].x;
     Vertices[vertices_arr_idx + 4] = uv_coords[indices[i]].y;
-    vertices_arr_idx += 5;
+    vertices_arr_idx += 8;
   }
 
   // 2. Front face
@@ -69,7 +69,7 @@ int Cube::setup_vertices(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
   for (int i = 0; i < 6; i++) {
     Vertices[vertices_arr_idx + 3] = uv_coords[indices[i]].x;
     Vertices[vertices_arr_idx + 4] = uv_coords[indices[i]].y;
-    vertices_arr_idx += 5;
+    vertices_arr_idx += 8;
   }
 
   // 3. Left
@@ -80,7 +80,7 @@ int Cube::setup_vertices(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
   for (int i = 0; i < 6; i++) {
     Vertices[vertices_arr_idx + 3] = uv_coords[indices[i]].x;
     Vertices[vertices_arr_idx + 4] = uv_coords[indices[i]].y;
-    vertices_arr_idx += 5;
+    vertices_arr_idx += 8;
   }
 
   // 4. Right
@@ -90,7 +90,7 @@ int Cube::setup_vertices(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
   for (int i = 0; i < 6; i++) {
     Vertices[vertices_arr_idx + 3] = uv_coords[indices[i]].x;
     Vertices[vertices_arr_idx + 4] = uv_coords[indices[i]].y;
-    vertices_arr_idx += 5;
+    vertices_arr_idx += 8;
   }
   indices = {0, 1, 2, 2, 3, 0};
 
@@ -100,7 +100,7 @@ int Cube::setup_vertices(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
   for (int i = 0; i < 6; i++) {
     Vertices[vertices_arr_idx + 3] = uv_coords[indices[i]].x;
     Vertices[vertices_arr_idx + 4] = uv_coords[indices[i]].y;
-    vertices_arr_idx += 5;
+    vertices_arr_idx += 8;
   }
 
   // 6. Top
@@ -110,7 +110,7 @@ int Cube::setup_vertices(glm::vec2 p_top, glm::vec2 p_bot, glm::vec2 p_front,
   for (int i = 0; i < 6; i++) {
     Vertices[vertices_arr_idx + 3] = uv_coords[indices[i]].x;
     Vertices[vertices_arr_idx + 4] = uv_coords[indices[i]].y;
-    vertices_arr_idx += 5;
+    vertices_arr_idx += 8;
   }
   return 0;
 };
@@ -126,13 +126,18 @@ int Cube::render_setup() {
                GL_STATIC_DRAW);
 
   // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
                         (void *)nullptr);
   glEnableVertexAttribArray(0);
   // texture attribute
-  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+  glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
                         (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
+
+  // normal attribute
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                        (void *)(5 * sizeof(float)));
+  glEnableVertexAttribArray(2);
 
   SPDLOG_DEBUG("Finalized cube for rendering.");
   return 0;

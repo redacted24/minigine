@@ -30,6 +30,8 @@ void new_perlin_seed(PerlinNoise *p_perlin,
                      std::vector<glm::vec3> *p_grass_block_positions,
                      float p_seed);
 
+glm::vec3 light_source_position(40.0f, 12.0f, 17.0f); // lighting
+
 int main(int argc, char *argv[]) {
   // OpenGL and SDL3 Setup
   Backend::setup();
@@ -49,9 +51,10 @@ int main(int argc, char *argv[]) {
   int width, height, nrChannels;
 
   // Creation of vertex shader
-  Shader myShader("assets/shaders/main.vs.glsl", "assets/shaders/main.fs.glsl");
-  Shader lightShader("assets/shaders/light.vs.glsl",
-                     "assets/shaders/light.fs.glsl");
+  Shader lightShader("assets/shaders/main.vs.glsl",
+                     "assets/shaders/main.fs.glsl");
+  Shader lightCubeShader("assets/shaders/light.vs.glsl",
+                         "assets/shaders/light.fs.glsl");
 
   Cube grass_block = Cube("grass_block", &block_atlas);
   Cube dirt_block = Cube("dirt", &block_atlas);
@@ -59,9 +62,6 @@ int main(int argc, char *argv[]) {
 
   grass_block.render_setup();
   dirt_block.render_setup();
-
-  myShader.use();
-  myShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
 
   // TODO: enable camera view matrix default set
   Camera *camera = new Camera(glm::vec3(15.0f, 27.0f, 51.0f));
@@ -116,6 +116,7 @@ int main(int argc, char *argv[]) {
     //								Event loop
     //
     // ===============================================
+    // TODO: separate object and ui text rendering
 
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
@@ -139,42 +140,35 @@ int main(int argc, char *argv[]) {
         }
       }
     }
-
-    // TODO: separate object and ui text rendering
+    SDL_SetWindowRelativeMouseMode(Backend::window, true);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // keyboard input
     const bool *state = SDL_GetKeyboardState(nullptr);
     camera->ProcessKeyboard(state, deltaTime);
 
-    // render
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // bind texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, block_atlas.GlTextureData);
-
     // activate shader
-    myShader.use();
-
-    SDL_SetWindowRelativeMouseMode(Backend::window, true);
-
+    lightShader.use();
+    lightShader.setVec3("lightPos", light_source_position);
+    lightShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
     glm::mat4 projection = glm::perspective(
         glm::radians(45.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.1f,
         100.0f);
-    myShader.setMat4("projection", projection);
-
+    lightShader.setMat4("projection", projection);
     glm::mat4 view = camera->GetViewMatrix();
-    myShader.setMat4("view", view);
+    lightShader.setMat4("view", view);
 
     // Render terrain
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, block_atlas.GlTextureData);
     for (unsigned int i = 0; i < grassBlockPositions.size(); i++) {
       glBindVertexArray(grass_block.VAO);
       glBindTexture(GL_TEXTURE_2D, block_atlas.GlTextureData);
       float angle = 20.0f * i;
       glm::mat4 model = glm::mat4(1.0f);
       model = glm::translate(model, grassBlockPositions[i]);
-      myShader.setMat4("model", model);
+      lightShader.setMat4("model", model);
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
@@ -183,21 +177,19 @@ int main(int argc, char *argv[]) {
       glBindTexture(GL_TEXTURE_2D, block_atlas.GlTextureData);
       glm::mat4 model = glm::mat4(1.0f);
       model = glm::translate(model, dirtBlockPositions[i]);
-      myShader.setMat4("model", model);
+      lightShader.setMat4("model", model);
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
     // Render light source
-    lightShader.use();
+    lightCubeShader.use();
     glBindTexture(GL_TEXTURE_2D, light_block.VBO);
     glBindVertexArray(light_block.VAO);
-    glm::vec3 light_source_position(32.0f, 18.0f, 21.0f);
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, light_source_position);
-    lightShader.setMat4("model", model);
-    lightShader.setMat4("view", view);
-    lightShader.setMat4("projection", projection);
-    // myShader.setMat4("model", model);
+    lightCubeShader.setMat4("model", model);
+    lightCubeShader.setMat4("view", view);
+    lightCubeShader.setMat4("projection", projection);
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     // Render text
