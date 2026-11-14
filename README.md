@@ -87,7 +87,7 @@ pre-commit install
 Based on [Ken Perlin's noise implementation](https://people.csail.mit.edu/ericchan/bib/pdf/p681-perlin.pdf).
 Development in progress.
 
-https://github.com/user-attachments/assets/620ee0ad-5f63-4436-ad85-870550d204e4
+https://github.com/user-attachments/assets/426676fc-131c-4acc-b5df-716568ea50d2
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
